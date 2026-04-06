@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 'placeholder');
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Canopy <hello@canopy.app>';
