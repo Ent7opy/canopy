@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/* ── Solarpunk Design Tokens ───────────────────────────────────────────────── */
+@theme {
+  /* Colors */
+  --color-parchment:    #f7f3e9;
+  --color-surface:      #fefcf5;
+  --color-surface-2:    #f0ead8;
+  --color-forest:       #3d6b4f;
+  --color-forest-light: #5a8f6e;
+  --color-forest-dim:   #3d6b4f1a;
+  --color-amber-sol:    #c07d2e;
+  --color-amber-light:  #d4953f;
+  --color-amber-dim:    #c07d2e18;
+  --color-bark:         #c8b99a;
+  --color-bark-subtle:  #e8dfc9;
+  --color-ink:          #1c1a14;
+  --color-ink-2:        #5c5540;
+  --color-ink-3:        #9c8f78;
+  --color-sepia:        #7a6040;
+
+  /* Fonts */
+  --font-display:  var(--font-playfair);
+  --font-reading:  var(--font-lora);
+  --font-data:     var(--font-jetbrains);
+}
+
+/* ── Base Reset ──────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-parchment);
+  color: var(--color-ink);
+  font-family: var(--font-lora), Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Font Utilities ──────────────────────────────────────────────────────── */
+.font-display { font-family: var(--font-playfair), Georgia, serif; }
+.font-reading { font-family: var(--font-lora), Georgia, serif; }
+.font-data    { font-family: var(--font-jetbrains), "Courier New", monospace; }
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-bark-subtle); }
+::-webkit-scrollbar-thumb { background: var(--color-bark); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-amber-sol); }
+
+* { scrollbar-width: thin; scrollbar-color: var(--color-bark) var(--color-bark-subtle); }
+
+/* ── Organic Range Slider ────────────────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: var(--color-bark-subtle);
+  border-radius: 10px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  width: 22px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-forest);
+  transform: rotate(-45deg);
+  margin-top: -8px;
+  box-shadow: 0 2px 8px rgba(61, 107, 79, 0.3);
+  transition: background 200ms ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--color-amber-sol);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: var(--color-bark-subtle);
+  border-radius: 10px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 22px;
+  width: 22px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-forest);
+  transform: rotate(-45deg);
+  border: none;
+  box-shadow: 0 2px 8px rgba(61, 107, 79, 0.3);
+}
+
+/* ── Text Selection ──────────────────────────────────────────────────────── */
+::selection {
+  background: #c07d2e33;
+  color: var(--color-ink);
+}
+
+/* ── Focus Ring ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-forest);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Link Defaults ───────────────────────────────────────────────────────── */
+a {
+  color: var(--color-forest);
+  text-decoration-color: transparent;
+  transition: text-decoration-color 150ms ease;
+}
+a:hover {
+  text-decoration-color: var(--color-amber-sol);
+}
+
+/* ── Textarea baseline ───────────────────────────────────────────────────── */
+textarea {
+  font-family: var(--font-lora), Georgia, serif;
+  resize: vertical;
+}

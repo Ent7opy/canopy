@@ -1,0 +1,17 @@
+{
+  "name": "canopy",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:ui": "npm run dev --workspace=apps/ui",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:ui\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
