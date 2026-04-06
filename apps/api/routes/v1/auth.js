@@ -136,12 +136,12 @@ router.get('/verify', async (req, res, next) => {
 
   try {
     const { rows } = await pool.query(
-      'SELECT id, email FROM users WHERE verify_token = $1 AND verify_token_expires > NOW()',
+      'SELECT id FROM users WHERE verify_token = $1 AND verify_token_expires > NOW()',
       [token]
     );
 
     if (!rows.length) {
-      return res.redirect(`${APP_URL}/login?error=invalid_token`);
+      return res.status(400).json({ error: 'Invalid or expired verification token' });
     }
 
     await pool.query(
@@ -149,7 +149,7 @@ router.get('/verify', async (req, res, next) => {
       [rows[0].id]
     );
 
-    res.redirect(`${APP_URL}/login?verified=true`);
+    res.json({ success: true });
   } catch (err) {
     next(err);
   }

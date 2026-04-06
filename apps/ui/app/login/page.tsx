@@ -1,11 +1,11 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { authLogin } from '@/lib/api';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setAuth, token } = useAuthStore();
@@ -44,13 +44,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-parchment flex items-center justify-center px-4">
       <div className="w-full max-w-[420px]">
-        {/* Logo */}
         <div className="text-center mb-10">
           <h1 className="font-display text-5xl font-bold text-forest italic mb-2">Canopy</h1>
           <p className="font-reading text-ink-2 italic text-base">your life, tended carefully</p>
         </div>
 
-        {/* Card */}
         <div className="bg-surface border border-sepia rounded-2xl p-8 shadow-sm">
           <h2 className="font-display text-2xl text-ink font-bold mb-6">Welcome back</h2>
 
@@ -111,5 +109,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-parchment flex items-center justify-center">
+        <div className="text-4xl">🌿</div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
