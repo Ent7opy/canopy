@@ -11,7 +11,10 @@ async function runMigration() {
     process.exit(1);
   }
 
-  const client = new Client({ connectionString });
+  const client = new Client({
+    connectionString,
+    ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false },
+  });
   try {
     await client.connect();
     console.log('Connected to PostgreSQL');
