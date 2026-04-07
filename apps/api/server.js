@@ -1,6 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { Client } = require('pg');
+const fs = require('fs');
+const path = require('path');
 const { errorHandler } = require('./middleware/errors');
 const v1Router = require('./routes/v1');
 
@@ -25,4 +28,28 @@ app.use('/api/v1', v1Router);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Canopy API running on :${PORT}`));
+async function runMigrations() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.warn('DATABASE_URL not set — skipping migrations');
+    return;
+  }
+  const client = new Client({
+    connectionString,
+    ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false },
+  });
+  try {
+    await client.connect();
+    const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+    await client.query(sql);
+    console.log('✅ Migrations ran successfully');
+  } catch (err) {
+    console.error('❌ Migration error:', err.message);
+  } finally {
+    await client.end();
+  }
+}
+
+runMigrations().then(() => {
+  app.listen(PORT, () => console.log(`Canopy API running on :${PORT}`));
+});
