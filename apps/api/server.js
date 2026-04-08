@@ -68,7 +68,8 @@ async function runMigrations() {
     return;
   }
   const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
-  const sslConfig = isLocal ? false : { rejectUnauthorized: true };
+  const rejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false';
+  const sslConfig = isLocal ? false : { rejectUnauthorized };
   if (!isLocal && process.env.DATABASE_CA_CERT) sslConfig.ca = process.env.DATABASE_CA_CERT;
   const client = new Client({ connectionString, ssl: sslConfig });
   try {
