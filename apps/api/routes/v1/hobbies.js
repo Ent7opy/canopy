@@ -88,6 +88,11 @@ router.delete('/:id', async (req, res, next) => {
 // GET /:id/logs — list logs for hobby
 router.get('/:id/logs', async (req, res, next) => {
   try {
+    const { rows: hobby } = await pool.query(
+      'SELECT id FROM hobbies WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!hobby[0]) return res.status(404).json({ error: 'Hobby not found' });
     const { rows } = await pool.query(
       `SELECT * FROM hobby_logs WHERE hobby_id = $1 AND user_id = $2
        ORDER BY log_date DESC`,
@@ -107,6 +112,11 @@ router.post('/:id/logs', validate(z.object({
 })), async (req, res, next) => {
   const { log_date, duration_min, notes, rating, metadata } = req.body;
   try {
+    const { rows: hobby } = await pool.query(
+      'SELECT id FROM hobbies WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!hobby[0]) return res.status(404).json({ error: 'Hobby not found' });
     const { rows } = await pool.query(
       `INSERT INTO hobby_logs (hobby_id, user_id, log_date, duration_min, notes, rating, metadata)
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,

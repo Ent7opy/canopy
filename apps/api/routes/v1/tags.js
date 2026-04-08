@@ -55,6 +55,11 @@ router.delete('/:id', async (req, res, next) => {
 // GET /:id/entities — entity_tags rows for this tag
 router.get('/:id/entities', async (req, res, next) => {
   try {
+    const { rows: tag } = await pool.query(
+      'SELECT id FROM tags WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.user.id]
+    );
+    if (!tag[0]) return res.status(404).json({ error: 'Tag not found' });
     const { rows } = await pool.query(
       'SELECT * FROM entity_tags WHERE tag_id = $1',
       [req.params.id]

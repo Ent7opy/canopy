@@ -100,6 +100,11 @@ router.post('/:id/places', validate(z.object({
 })), async (req, res, next) => {
   const { place_id, sort_order } = req.body;
   try {
+    const { rows: trip } = await pool.query(
+      'SELECT id FROM trips WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!trip[0]) return res.status(404).json({ error: 'Trip not found' });
     await pool.query(
       `INSERT INTO trip_places (trip_id, place_id, sort_order)
        VALUES ($1,$2,$3) ON CONFLICT DO NOTHING`,
@@ -112,6 +117,11 @@ router.post('/:id/places', validate(z.object({
 // DELETE /:id/places/:placeId — remove place from trip
 router.delete('/:id/places/:placeId', async (req, res, next) => {
   try {
+    const { rows: trip } = await pool.query(
+      'SELECT id FROM trips WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!trip[0]) return res.status(404).json({ error: 'Trip not found' });
     await pool.query(
       'DELETE FROM trip_places WHERE trip_id = $1 AND place_id = $2',
       [req.params.id, req.params.placeId]

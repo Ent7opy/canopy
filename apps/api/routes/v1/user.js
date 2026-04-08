@@ -7,7 +7,7 @@ const { z } = require('zod');
 // GET / — get user row
 router.get('/', async (req, res, next) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+    const { rows } = await pool.query('SELECT id, email, display_name, timezone, theme, settings, created_at FROM users WHERE id = $1', [req.user.id]);
     if (!rows[0]) return res.status(404).json({ error: 'User not found' });
     res.json(rows[0]);
   } catch (err) { next(err); }
@@ -28,7 +28,7 @@ router.patch('/', validate(z.object({
         timezone     = COALESCE($2, timezone),
         theme        = COALESCE($3, theme),
         settings     = COALESCE($4, settings)
-       WHERE id = $5 RETURNING *`,
+       WHERE id = $5 RETURNING id, email, display_name, timezone, theme, settings, created_at`,
       [display_name, timezone, theme, settings ? JSON.stringify(settings) : null, req.user.id]
     );
     res.json(rows[0]);
