@@ -11,9 +11,13 @@ async function runMigration() {
     process.exit(1);
   }
 
+  const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+  const sslConfig = isLocal ? false : { rejectUnauthorized: true };
+  if (!isLocal && process.env.DATABASE_CA_CERT) sslConfig.ca = process.env.DATABASE_CA_CERT;
+
   const client = new Client({
     connectionString,
-    ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false },
+    ssl: sslConfig,
   });
   try {
     await client.connect();

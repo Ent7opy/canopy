@@ -138,6 +138,15 @@ router.post('/:id/interactions', validate(z.object({
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    const { rows: contact } = await client.query(
+      'SELECT id FROM contacts WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!contact[0]) {
+      await client.query('ROLLBACK');
+      client.release();
+      return res.status(404).json({ error: 'Contact not found' });
+    }
     const { rows } = await client.query(
       `INSERT INTO interactions (user_id, contact_id, type, date, summary, metadata)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,

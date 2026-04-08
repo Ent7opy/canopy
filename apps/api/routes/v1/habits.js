@@ -110,6 +110,11 @@ router.post('/:id/logs', validate(z.object({
 })), async (req, res, next) => {
   const { log_date, count, note } = req.body;
   try {
+    const { rows: habit } = await pool.query(
+      'SELECT id FROM habits WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!habit[0]) return res.status(404).json({ error: 'Habit not found' });
     const { rows } = await pool.query(
       `INSERT INTO habit_logs (habit_id, user_id, log_date, count, note)
        VALUES ($1,$2,$3,$4,$5)

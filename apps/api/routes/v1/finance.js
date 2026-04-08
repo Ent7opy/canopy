@@ -101,6 +101,22 @@ router.post('/transactions', validate(z.object({
   const { account_id, amount, type, currency, category, subcategory, description,
           txn_date, to_account_id, recurring, metadata } = req.body;
   try {
+    // Verify account belongs to current user
+    const { rows: acct } = await pool.query(
+      'SELECT id FROM accounts WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [account_id, req.user.id]
+    );
+    if (!acct[0]) return res.status(400).json({ error: 'Account not found' });
+
+    // Verify destination account if provided
+    if (to_account_id) {
+      const { rows: toAcct } = await pool.query(
+        'SELECT id FROM accounts WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+        [to_account_id, req.user.id]
+      );
+      if (!toAcct[0]) return res.status(400).json({ error: 'Destination account not found' });
+    }
+
     const { rows } = await pool.query(
       `INSERT INTO transactions (user_id, account_id, amount, type, currency, category,
         subcategory, description, txn_date, to_account_id, recurring, metadata)
@@ -117,6 +133,13 @@ router.patch('/transactions/:id', async (req, res, next) => {
   const { amount, type, currency, category, subcategory, description, txn_date,
           to_account_id, recurring, metadata } = req.body;
   try {
+    if (to_account_id) {
+      const { rows: toAcct } = await pool.query(
+        'SELECT id FROM accounts WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+        [to_account_id, req.user.id]
+      );
+      if (!toAcct[0]) return res.status(400).json({ error: 'Destination account not found' });
+    }
     const { rows } = await pool.query(
       `UPDATE transactions SET
         amount        = COALESCE($1, amount),

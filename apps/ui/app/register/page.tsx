@@ -7,7 +7,7 @@ import { authRegister } from '@/lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { user } = useAuthStore();
 
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -17,8 +17,8 @@ export default function RegisterPage() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (token) router.replace('/');
-  }, [token]);
+    if (user) router.replace('/');
+  }, [user]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

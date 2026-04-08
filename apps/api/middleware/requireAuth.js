@@ -1,18 +1,44 @@
 const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('../config');
+const { pool } = require('../db/pool');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
+async function requireAuth(req, res, next) {
+  const token =
+    req.cookies?.canopy_session ||
+    (req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.split(' ')[1]
+      : null);
 
-function requireAuth(req, res, next) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
+  if (!token) {
     return res.status(401).json({ error: 'Authentication required' });
   }
-  const token = header.split(' ')[1];
+
+  let decoded;
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
-    next();
+    decoded = jwt.verify(token, JWT_SECRET);
   } catch {
-    res.status(401).json({ error: 'Invalid or expired token' });
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      'SELECT token_invalidated_before FROM users WHERE id = $1',
+      [decoded.id]
+    );
+    if (!rows[0]) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+    if (
+      rows[0].token_invalidated_before &&
+      decoded.iat < Math.floor(new Date(rows[0].token_invalidated_before).getTime() / 1000)
+    ) {
+      return res.status(401).json({ error: 'Token has been revoked. Please log in again.' });
+    }
+
+    req.user = decoded;
+    next();
+  } catch (err) {
+    next(err);
   }
 }
 

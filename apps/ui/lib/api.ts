@@ -45,26 +45,17 @@ export type {
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/$/, '');
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const stored = localStorage.getItem('canopy-auth');
-    if (!stored) return null;
-    return JSON.parse(stored)?.state?.token ?? null;
-  } catch {
-    return null;
-  }
-}
-
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T | null> {
-  const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers as Record<string, string>),
   };
   try {
-    const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+    const res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers,
+      credentials: 'include', // send HttpOnly session cookie
+    });
     if (res.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('canopy-auth');
@@ -91,6 +82,7 @@ export async function authRegister(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, display_name }),
+    credentials: 'include',
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Registration failed');
@@ -100,11 +92,12 @@ export async function authRegister(
 export async function authLogin(
   email: string,
   password: string
-): Promise<{ token: string; user: AuthUser }> {
+): Promise<{ user: AuthUser }> {
   const res = await fetch(`${API_URL}/api/v1/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
+    credentials: 'include', // receive HttpOnly session cookie
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Login failed');
@@ -116,6 +109,7 @@ export async function authForgotPassword(email: string): Promise<{ message: stri
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
+    credentials: 'include',
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed');
@@ -127,10 +121,18 @@ export async function authResetPassword(token: string, password: string): Promis
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token, password }),
+    credentials: 'include',
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed');
   return data;
+}
+
+export async function authLogout(): Promise<void> {
+  await fetch(`${API_URL}/api/v1/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
+  });
 }
 
 // ─── v1: USER ─────────────────────────────────────────────────────────────────

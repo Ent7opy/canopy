@@ -8,7 +8,7 @@ import { authLogin } from '@/lib/api';
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setAuth, token } = useAuthStore();
+  const { setAuth, user } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,22 +17,22 @@ function LoginContent() {
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    if (token) router.replace('/');
+    if (user) router.replace('/');
     if (searchParams.get('verified') === 'true') {
       setNotice('Email verified! You can now log in.');
     }
     if (searchParams.get('error') === 'invalid_token') {
       setError('Verification link is invalid or has expired. Please register again.');
     }
-  }, [token]);
+  }, [user]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const { token, user } = await authLogin(email, password);
-      setAuth(token, user);
+      const { user } = await authLogin(email, password);
+      setAuth(user);
       router.replace('/');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed');

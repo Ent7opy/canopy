@@ -91,6 +91,11 @@ router.delete('/:id', async (req, res, next) => {
 // GET /:id/sets — list sets
 router.get('/:id/sets', async (req, res, next) => {
   try {
+    const { rows: workout } = await pool.query(
+      'SELECT id FROM workouts WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!workout[0]) return res.status(404).json({ error: 'Workout not found' });
     const { rows } = await pool.query(
       'SELECT * FROM workout_sets WHERE workout_id = $1 ORDER BY sort_order',
       [req.params.id]
@@ -116,6 +121,15 @@ router.put('/:id/sets', validate(setSchema), async (req, res, next) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    const { rows: workout } = await client.query(
+      'SELECT id FROM workouts WHERE id = $1 AND user_id = $2 AND archived_at IS NULL',
+      [req.params.id, req.user.id]
+    );
+    if (!workout[0]) {
+      await client.query('ROLLBACK');
+      client.release();
+      return res.status(404).json({ error: 'Workout not found' });
+    }
     await client.query('DELETE FROM workout_sets WHERE workout_id = $1', [req.params.id]);
     const inserted = [];
     for (let i = 0; i < sets.length; i++) {

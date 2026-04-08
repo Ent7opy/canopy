@@ -556,3 +556,6 @@ CREATE TRIGGER trg_trips_updated_at           BEFORE UPDATE ON trips            
 DROP TRIGGER IF EXISTS trg_hobbies_updated_at         ON hobbies;
 CREATE TRIGGER trg_hobbies_updated_at         BEFORE UPDATE ON hobbies          FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- Security hardening: token revocation support
+ALTER TABLE users ADD COLUMN IF NOT EXISTS token_invalidated_before TIMESTAMPTZ;
+

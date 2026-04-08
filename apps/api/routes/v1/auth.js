@@ -7,10 +7,13 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { Resend } = require('resend');
 
-const resend = new Resend(process.env.RESEND_API_KEY || 'placeholder');
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production';
-const APP_URL = process.env.APP_URL || 'http://localhost:3000';
-const FROM_EMAIL = process.env.FROM_EMAIL || 'Canopy <hello@canopy.app>';
+const { JWT_SECRET, APP_URL, FROM_EMAIL, RESEND_API_KEY, NODE_ENV } = require('../../config');
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -51,7 +54,7 @@ router.post('/register', validate(registerSchema), async (req, res, next) => {
 
     // Send verification email
     try {
-      await resend.emails.send({
+      if (resend) await resend.emails.send({
         from: FROM_EMAIL,
         to: email,
         subject: 'Verify your Canopy account 🌿',
@@ -62,7 +65,7 @@ router.post('/register', validate(registerSchema), async (req, res, next) => {
             <div style="max-width:520px;margin:40px auto;background:#faf8f3;border:1px solid #d4c5a9;border-radius:12px;padding:48px 40px;">
               <h1 style="margin:0 0 4px;color:#3d6b4f;font-size:32px;font-weight:bold;letter-spacing:-0.5px;">Canopy 🌿</h1>
               <p style="margin:0 0 32px;color:#8a7055;font-size:14px;font-style:italic;">your life, tended carefully</p>
-              <h2 style="margin:0 0 12px;color:#2c2416;font-size:20px;font-weight:normal;">Welcome, ${rows[0].display_name}.</h2>
+              <h2 style="margin:0 0 12px;color:#2c2416;font-size:20px;font-weight:normal;">Welcome, ${escapeHtml(rows[0].display_name)}.</h2>
               <p style="margin:0 0 28px;color:#5c4a32;font-size:16px;line-height:1.6;">One more step — verify your email address to start using Canopy.</p>
               <a href="${APP_URL}/auth/verify?token=${verify_token}"
                  style="display:inline-block;background:#3d6b4f;color:#f7f3e9;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;font-family:Georgia,serif;">
@@ -91,7 +94,7 @@ router.post('/register', validate(registerSchema), async (req, res, next) => {
 router.post('/login', validate(loginSchema), async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()]);
+    const { rows } = await pool.query('SELECT id, email, display_name, password_hash, email_verified, timezone, theme, settings FROM users WHERE email = $1', [email.toLowerCase()]);
     const user = rows[0];
 
     if (!user || !user.password_hash) {
@@ -110,11 +113,19 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
     const token = jwt.sign(
       { id: user.id, email: user.email, display_name: user.display_name },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '7d' }
     );
 
+    // Set HttpOnly cookie for browser clients
+    res.cookie('canopy_session', token, {
+      httpOnly: true,
+      secure: NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+
     res.json({
-      token,
       user: {
         id: user.id,
         email: user.email,
@@ -155,6 +166,32 @@ router.get('/verify', async (req, res, next) => {
   }
 });
 
+// POST /api/v1/auth/verify (preferred — token in body, not URL)
+router.post('/verify', async (req, res, next) => {
+  const { token } = req.body;
+  if (!token) return res.status(400).json({ error: 'Verification token required' });
+
+  try {
+    const { rows } = await pool.query(
+      'SELECT id FROM users WHERE verify_token = $1 AND verify_token_expires > NOW()',
+      [token]
+    );
+
+    if (!rows.length) {
+      return res.status(400).json({ error: 'Invalid or expired verification token' });
+    }
+
+    await pool.query(
+      'UPDATE users SET email_verified = TRUE, verify_token = NULL, verify_token_expires = NULL WHERE id = $1',
+      [rows[0].id]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/v1/auth/me  (requires auth)
 router.get('/me', require('../../middleware/requireAuth').requireAuth, async (req, res, next) => {
   try {
@@ -167,6 +204,17 @@ router.get('/me', require('../../middleware/requireAuth').requireAuth, async (re
   } catch (err) {
     next(err);
   }
+});
+
+// POST /api/v1/auth/logout
+router.post('/logout', (req, res) => {
+  res.clearCookie('canopy_session', {
+    httpOnly: true,
+    secure: NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+  });
+  res.json({ message: 'Logged out' });
 });
 
 // POST /api/v1/auth/forgot-password
@@ -184,14 +232,14 @@ router.post('/forgot-password', async (req, res, next) => {
         [reset_token, reset_token_expires, rows[0].id]
       );
       try {
-        await resend.emails.send({
+        if (resend) await resend.emails.send({
           from: FROM_EMAIL,
           to: email,
           subject: 'Reset your Canopy password',
           html: `
             <div style="max-width:520px;margin:40px auto;background:#faf8f3;border:1px solid #d4c5a9;border-radius:12px;padding:48px 40px;font-family:Georgia,serif;">
               <h1 style="color:#3d6b4f;margin:0 0 24px;">Canopy 🌿</h1>
-              <p style="color:#5c4a32;font-size:16px;line-height:1.6;margin:0 0 28px;">Hi ${rows[0].display_name}, here's your password reset link. It expires in 1 hour.</p>
+              <p style="color:#5c4a32;font-size:16px;line-height:1.6;margin:0 0 28px;">Hi ${escapeHtml(rows[0].display_name)}, here's your password reset link. It expires in 1 hour.</p>
               <a href="${APP_URL}/auth/reset-password?token=${reset_token}"
                  style="display:inline-block;background:#3d6b4f;color:#f7f3e9;text-decoration:none;padding:14px 32px;border-radius:8px;font-size:16px;">
                 Reset password
@@ -224,9 +272,15 @@ router.post('/reset-password', async (req, res, next) => {
 
     const password_hash = await bcrypt.hash(password, 12);
     await pool.query(
-      'UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
+      'UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL, token_invalidated_before = NOW() WHERE id = $2',
       [password_hash, rows[0].id]
     );
+    res.clearCookie('canopy_session', {
+      httpOnly: true,
+      secure: NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
     res.json({ message: 'Password updated. You can now log in.' });
   } catch (err) {
     next(err);
