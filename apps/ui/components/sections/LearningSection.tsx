@@ -211,7 +211,7 @@ export function LearningSection() {
           <div className="flex items-center gap-3">
             <select
               value={newType}
-              onChange={(e) => setNewType(e.target.value)}
+              onChange={(e) => setNewType(e.target.value as ApiResource['type'])}
               className="font-reading text-[13px] text-ink bg-transparent border border-bark rounded-[6px] px-3 py-2 focus:outline-none focus:border-forest"
             >
               {LEARNING_TYPES.map((t) => (
