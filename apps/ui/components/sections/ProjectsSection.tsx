@@ -1,8 +1,11 @@
 "use client";
 
-import { Settings2 } from "lucide-react";
+import { useState } from "react";
+import { Settings2, Plus } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const statusDot: Record<string, string> = {
   active:    "#c07d2e",
@@ -13,7 +16,29 @@ const statusDot: Record<string, string> = {
 };
 
 export function ProjectsSection() {
-  const { projects } = useProjects();
+  const { projects, add } = useProjects();
+  const [showAdd, setShowAdd] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newType, setNewType] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleAdd = async () => {
+    if (!newName.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      await add(newName.trim(), {
+        description: newDesc.trim() || undefined,
+        type: newType.trim() || undefined,
+      });
+      setNewName("");
+      setNewDesc("");
+      setNewType("");
+      setShowAdd(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <section id="projects" className="mb-16 scroll-mt-20">
@@ -78,6 +103,55 @@ export function ProjectsSection() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Add project */}
+      {showAdd ? (
+        <div className="bg-surface border border-bark rounded-[8px] p-5 space-y-3 mt-5">
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAdd();
+              if (e.key === "Escape") setShowAdd(false);
+            }}
+            placeholder="Project name…"
+            autoFocus
+          />
+          <textarea
+            value={newDesc}
+            onChange={(e) => setNewDesc(e.target.value)}
+            placeholder="Description (optional)"
+            rows={2}
+            className="w-full bg-transparent font-reading text-[14px] text-ink border border-bark rounded-[6px] px-3 py-2 focus:outline-none focus:border-forest resize-none placeholder:text-ink-3"
+          />
+          <div className="flex items-center gap-3">
+            <Input
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+              placeholder="Type (optional)"
+              className="flex-1"
+            />
+            <Button variant="primary" size="sm" onClick={handleAdd} disabled={!newName.trim() || submitting}>
+              {submitting ? "Adding…" : "Add project"}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAdd(true)}
+            className="gap-1.5"
+          >
+            <Plus size={13} strokeWidth={2.5} />
+            Add project
+          </Button>
         </div>
       )}
 

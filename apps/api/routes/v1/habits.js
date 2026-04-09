@@ -128,4 +128,16 @@ router.post('/:id/logs', validate(z.object({
   } catch (err) { next(err); }
 });
 
+// DELETE /:id/logs/:logDate — remove a habit log for a specific date (undo)
+router.delete('/:id/logs/:logDate', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query(
+      'DELETE FROM habit_logs WHERE habit_id = $1 AND user_id = $2 AND log_date = $3',
+      [req.params.id, req.user.id, req.params.logDate]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Log not found' });
+    res.status(204).send();
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

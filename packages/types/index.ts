@@ -32,6 +32,7 @@ export interface ApiResource {
   type: 'book' | 'course' | 'article' | 'video' | 'podcast' | 'paper' | 'other';
   title: string;
   author: string | null;
+  url: string | null;
   status: 'backlog' | 'active' | 'completed' | 'abandoned' | 'reference';
   rating: number | null;
   progress_current: number | null;
@@ -119,6 +120,7 @@ export interface ApiHealthLog {
   sleep_quality: number | null;
   weight_kg: number | null;
   notes: string | null;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ApiContact {
@@ -160,6 +162,7 @@ export interface ApiInboxItem {
   id: string;
   content: string;
   processed: boolean;
+  created_at?: string;
 }
 
 export interface ApiDashboard {

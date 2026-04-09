@@ -247,6 +247,9 @@ export async function patchHabit(id: string, data: Partial<ApiHabit>): Promise<A
 export async function logHabit(id: string, log_date: string, count = 1): Promise<ApiHabitLog | null> {
   return apiFetch<ApiHabitLog>(`/api/v1/habits/${id}/logs`, { method: 'POST', body: JSON.stringify({ log_date, count }) });
 }
+export async function unlogHabit(id: string, logDate: string): Promise<void> {
+  await apiFetch(`/api/v1/habits/${id}/logs/${logDate}`, { method: 'DELETE' });
+}
 
 // ─── v1: JOURNAL ──────────────────────────────────────────────────────────────
 

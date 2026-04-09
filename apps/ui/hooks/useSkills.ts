@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { useDashboardStore } from '@/store/dashboardStore';
-import { getSkills, patchSkill } from '@/lib/api';
+import { getSkills, patchSkill, createSkill, deleteSkill } from '@/lib/api';
 
 export function useSkills() {
   const { skills, setSkills, setSkillValue } = useDashboardStore();
@@ -16,5 +16,16 @@ export function useSkills() {
     patchSkill(id, { value });
   }
 
-  return { skills, updateSkill };
+  async function addSkill(name: string, extra?: { category?: string; value?: number; target?: number }) {
+    const created = await createSkill({ name, ...extra });
+    if (created) setSkills([...skills, created]);
+    return created;
+  }
+
+  function removeSkill(id: string) {
+    setSkills(skills.filter((s) => s.id !== id));
+    deleteSkill(id);
+  }
+
+  return { skills, updateSkill, addSkill, removeSkill };
 }

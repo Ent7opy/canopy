@@ -71,11 +71,11 @@ function SleepQualityDots({
   );
 }
 
-// Pure-CSS sparkline — last 7 days mood/energy as bar columns
+// Sparkline — last 7 days sleep hours & sleep quality as bar columns
 function Sparkline({
   logs,
 }: {
-  logs: { log_date: string; mood: number | null; energy: number | null }[];
+  logs: { log_date: string; sleep_hours: number | null; sleep_quality: number | null }[];
 }) {
   const last7 = [...logs]
     .sort((a, b) => a.log_date.localeCompare(b.log_date))
@@ -90,19 +90,19 @@ function Sparkline({
       </p>
       <div className="flex gap-1.5 items-end h-12">
         {last7.map((entry, i) => {
-          const moodH = entry.mood ? (entry.mood / 10) * 100 : 0;
-          const energyH = entry.energy ? (entry.energy / 10) * 100 : 0;
+          const sleepH = entry.sleep_hours ? (entry.sleep_hours / 12) * 100 : 0;
+          const qualityH = entry.sleep_quality ? (entry.sleep_quality / 5) * 100 : 0;
           return (
             <div key={i} className="flex-1 flex gap-0.5 items-end h-full" title={entry.log_date}>
               <div
                 className="flex-1 rounded-sm bg-forest opacity-60 transition-all duration-300"
-                style={{ height: `${moodH}%` }}
-                title={`Mood: ${entry.mood}`}
+                style={{ height: `${sleepH}%` }}
+                title={`Sleep: ${entry.sleep_hours}h`}
               />
               <div
                 className="flex-1 rounded-sm bg-amber-sol opacity-60 transition-all duration-300"
-                style={{ height: `${energyH}%` }}
-                title={`Energy: ${entry.energy}`}
+                style={{ height: `${qualityH}%` }}
+                title={`Quality: ${entry.sleep_quality}/5`}
               />
             </div>
           );
@@ -110,10 +110,10 @@ function Sparkline({
       </div>
       <div className="flex gap-4 mt-2">
         <span className="flex items-center gap-1 font-data text-[10px] text-ink-3">
-          <span className="w-2 h-2 rounded-sm bg-forest opacity-60 inline-block" /> Mood
+          <span className="w-2 h-2 rounded-sm bg-forest opacity-60 inline-block" /> Sleep hours
         </span>
         <span className="flex items-center gap-1 font-data text-[10px] text-ink-3">
-          <span className="w-2 h-2 rounded-sm bg-amber-sol opacity-60 inline-block" /> Energy
+          <span className="w-2 h-2 rounded-sm bg-amber-sol opacity-60 inline-block" /> Quality
         </span>
       </div>
     </div>
@@ -124,32 +124,46 @@ export function HealthSection() {
   const { logs, todayLog, log } = useHealth();
   const todayStr = new Date().toISOString().split("T")[0];
 
-  const [mood, setMood] = useState(todayLog?.mood ?? 5);
-  const [energy, setEnergy] = useState(todayLog?.energy ?? 5);
   const [sleepHours, setSleepHours] = useState(todayLog?.sleep_hours ?? 7);
   const [sleepQuality, setSleepQuality] = useState(todayLog?.sleep_quality ?? 3);
+  const [activityLevel, setActivityLevel] = useState<number>(
+    (todayLog?.metadata?.activity_level as number) ?? 50
+  );
+  const [performanceNote, setPerformanceNote] = useState<string>(
+    (todayLog?.metadata?.performance_note as string) ?? ""
+  );
 
   useEffect(() => {
     if (todayLog) {
-      setMood(todayLog.mood ?? 5);
-      setEnergy(todayLog.energy ?? 5);
       setSleepHours(todayLog.sleep_hours ?? 7);
       setSleepQuality(todayLog.sleep_quality ?? 3);
+      setActivityLevel((todayLog.metadata?.activity_level as number) ?? 50);
+      setPerformanceNote((todayLog.metadata?.performance_note as string) ?? "");
     }
   }, [todayLog?.log_date]);
 
-  // Debounced save
   const autosave = useCallback(
-    (overrides?: { mood?: number; energy?: number; sleep_hours?: number; sleep_quality?: number }) => {
+    (overrides?: {
+      sleep_hours?: number;
+      sleep_quality?: number;
+      metadata?: Record<string, unknown>;
+    }) => {
+      const mergedMetadata = {
+        activity_level: activityLevel,
+        performance_note: performanceNote,
+        ...(overrides?.metadata ?? {}),
+      };
       log({
         log_date: todayStr,
-        mood: overrides?.mood ?? mood,
-        energy: overrides?.energy ?? energy,
+        // Preserve existing mood/energy from today's log so we don't null them out
+        mood: todayLog?.mood ?? null,
+        energy: todayLog?.energy ?? null,
         sleep_hours: overrides?.sleep_hours ?? sleepHours,
         sleep_quality: overrides?.sleep_quality ?? sleepQuality,
+        metadata: mergedMetadata,
       });
     },
-    [mood, energy, sleepHours, sleepQuality, todayStr]
+    [sleepHours, sleepQuality, activityLevel, performanceNote, todayStr, todayLog?.mood, todayLog?.energy]
   );
 
   return (
@@ -169,22 +183,6 @@ export function HealthSection() {
 
         <div className="space-y-6">
           <SliderRow
-            label="Mood"
-            value={mood}
-            max={10}
-            step={1}
-            onChange={(v) => { setMood(v); autosave({ mood: v }); }}
-            unit="/10"
-          />
-          <SliderRow
-            label="Energy"
-            value={energy}
-            max={10}
-            step={1}
-            onChange={(v) => { setEnergy(v); autosave({ energy: v }); }}
-            unit="/10"
-          />
-          <SliderRow
             label="Sleep"
             value={sleepHours}
             max={12}
@@ -196,6 +194,30 @@ export function HealthSection() {
             value={sleepQuality}
             onChange={(v) => { setSleepQuality(v); autosave({ sleep_quality: v }); }}
           />
+          <SliderRow
+            label="Activity level"
+            value={activityLevel}
+            max={100}
+            step={5}
+            onChange={(v) => {
+              setActivityLevel(v);
+              autosave({ metadata: { activity_level: v, performance_note: performanceNote } });
+            }}
+            unit="%"
+          />
+          <div>
+            <label className="font-reading text-[13px] text-ink-2 block mb-2">Performance note</label>
+            <textarea
+              rows={2}
+              value={performanceNote}
+              onChange={(e) => setPerformanceNote(e.target.value)}
+              onBlur={() =>
+                autosave({ metadata: { activity_level: activityLevel, performance_note: performanceNote } })
+              }
+              className="w-full bg-transparent font-reading text-[14px] text-ink border-b border-bark focus:border-forest focus:outline-none py-1.5 resize-none placeholder:text-ink-3"
+              placeholder="How did you perform today?"
+            />
+          </div>
         </div>
 
         <Sparkline logs={logs} />

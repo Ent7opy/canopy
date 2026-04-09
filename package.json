@@ -9,7 +9,8 @@
   "scripts": {
     "dev:api": "npm run dev --workspace=apps/api",
     "dev:ui": "npm run dev --workspace=apps/ui",
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:ui\""
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:ui\"",
+    "seed": "npm run seed --workspace=apps/api"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
