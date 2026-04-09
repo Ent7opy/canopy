@@ -9,7 +9,6 @@ const navItems = [
   { name: "Work", href: "/work" },
   { name: "Hobbies", href: "/hobbies" },
   { name: "Health", href: "/health" },
-  { name: "Settings", href: "/settings" },
 ];
 
 export default function Navbar() {
