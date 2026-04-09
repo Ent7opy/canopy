@@ -25,7 +25,7 @@ export function LearningSection() {
   // Add form state
   const [showAdd, setShowAdd] = useState(false);
   const [newTitle, setNewTitle] = useState("");
-  const [newType, setNewType] = useState<string>("course");
+  const [newType, setNewType] = useState<ApiResource['type']>("course");
   const [newAuthor, setNewAuthor] = useState("");
   const [newUrl, setNewUrl] = useState("");
 
