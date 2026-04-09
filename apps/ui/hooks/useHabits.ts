@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { useDashboardStore } from '@/store/dashboardStore';
-import { getTodayHabits, logHabit, createHabit, type ApiHabit } from '@/lib/api';
+import { getTodayHabits, logHabit, unlogHabit, createHabit, type ApiHabit } from '@/lib/api';
 
 export function useHabits() {
   const { habits, setHabits, setHabitDone } = useDashboardStore();
@@ -18,10 +18,16 @@ export function useHabits() {
     logHabit(id, today);
   }
 
+  function uncomplete(id: string) {
+    setHabitDone(id, false);
+    const today = new Date().toISOString().split('T')[0];
+    unlogHabit(id, today);
+  }
+
   async function add(name: string, frequency = 'daily') {
     const created = await createHabit({ name, frequency });
     if (created) setHabits([...habits, { ...created, done: false }]);
   }
 
-  return { habits, complete, add };
+  return { habits, complete, uncomplete, add };
 }

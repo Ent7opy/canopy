@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
 const required = ['JWT_SECRET', 'DATABASE_URL'];
 for (const key of required) {

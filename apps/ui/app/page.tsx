@@ -23,8 +23,8 @@ export default function Home() {
   return (
     <div className="min-h-screen flex justify-center py-20">
       <div className="w-full max-w-[780px] px-8">
-        <InboxSection />
         <NowSection />
+        <InboxSection />
         <HabitsSection />
         <JournalSection />
         <HealthSection />

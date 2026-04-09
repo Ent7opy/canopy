@@ -1,17 +1,27 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Inbox, Trash2, CheckCheck } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Inbox, CheckCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useInbox } from "@/hooks/useInbox";
 import { Button } from "@/components/ui/button";
 import FernDivider from "@/components/FernDivider";
 
+const PAGE_SIZE = 5;
+
 export function InboxSection() {
-  const { items, capture, process, remove } = useInbox();
+  const { items, capture, process } = useInbox();
   const [draft, setDraft] = useState("");
+  const [page, setPage] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const unprocessed = items.filter((i) => !i.processed);
+  const totalPages = Math.max(1, Math.ceil(unprocessed.length / PAGE_SIZE));
+  const pageItems = unprocessed.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  // Auto-adjust page when items are processed and current page is now empty
+  useEffect(() => {
+    if (page >= totalPages) setPage(Math.max(0, totalPages - 1));
+  }, [page, totalPages]);
 
   const handleCapture = async () => {
     const text = draft.trim();
@@ -21,11 +31,21 @@ export function InboxSection() {
     inputRef.current?.focus();
   };
 
+  const formatDate = (iso?: string) => {
+    if (!iso) return null;
+    return new Date(iso).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <section id="inbox" className="mb-16 scroll-mt-20">
       <div className="flex items-center gap-3 mb-8">
         <Inbox className="text-forest flex-shrink-0" size={20} strokeWidth={1.8} />
-        <h3 className="text-[22px] font-semibold text-ink font-display">Inbox</h3>
+        <h3 className="text-[22px] font-semibold text-ink font-display">Mind Log</h3>
         {unprocessed.length > 0 && (
           <span className="ml-auto font-data text-[12px] text-amber-sol">
             {unprocessed.length} unprocessed
@@ -72,40 +92,66 @@ export function InboxSection() {
           <p className="font-reading text-[14px] text-ink-3 italic">Mind clear.</p>
         </div>
       ) : (
-        <div className="space-y-1.5">
-          {unprocessed.map((item) => (
-            <div
-              key={item.id}
-              className="group flex items-center justify-between px-4 py-3.5 bg-surface border border-bark-subtle rounded-[8px] hover:border-bark transition-colors"
-            >
-              <p className="text-[14px] text-ink font-reading leading-snug flex-1 min-w-0 pr-4">
-                {item.content}
-              </p>
-              <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => process(item.id)}
-                  aria-label="Mark as processed"
-                  className="h-7 w-7 text-forest hover:text-forest"
-                  title="Process"
-                >
-                  <CheckCheck size={14} strokeWidth={2} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => remove(item.id)}
-                  aria-label="Delete"
-                  className="h-7 w-7 text-ink-3 hover:text-amber-sol"
-                  title="Delete"
-                >
-                  <Trash2 size={13} strokeWidth={1.8} />
-                </Button>
+        <>
+          <div className="space-y-1.5">
+            {pageItems.map((item) => (
+              <div
+                key={item.id}
+                className="group flex items-start justify-between px-4 py-3.5 bg-surface border border-bark-subtle rounded-[8px] hover:border-bark transition-colors"
+              >
+                <div className="flex-1 min-w-0 pr-4">
+                  <p className="text-[14px] text-ink font-reading leading-snug">
+                    {item.content}
+                  </p>
+                  {item.created_at && (
+                    <span className="font-data text-[10px] text-ink-3 mt-1 block">
+                      {formatDate(item.created_at)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => process(item.id)}
+                    aria-label="Mark as processed"
+                    className="h-7 w-7 text-forest hover:text-forest"
+                    title="Process"
+                  >
+                    <CheckCheck size={14} strokeWidth={2} />
+                  </Button>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="h-7 px-2"
+              >
+                <ChevronLeft size={14} />
+              </Button>
+              <span className="font-data text-[11px] text-ink-3">
+                {page + 1} / {totalPages}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="h-7 px-2"
+              >
+                <ChevronRight size={14} />
+              </Button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       <FernDivider />

@@ -2,7 +2,7 @@ const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../../.env') });
 
 async function runMigration() {
   const connectionString = process.env.DATABASE_URL;
@@ -11,7 +11,7 @@ async function runMigration() {
     process.exit(1);
   }
 
-  const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+  const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1') || connectionString.includes('@postgres:') || connectionString.includes('@postgres/');
   const rejectUnauthorized = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false';
   const sslConfig = isLocal ? false : { rejectUnauthorized };
   if (!isLocal && process.env.DATABASE_CA_CERT) sslConfig.ca = process.env.DATABASE_CA_CERT;

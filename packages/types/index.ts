@@ -119,6 +119,7 @@ export interface ApiHealthLog {
   sleep_quality: number | null;
   weight_kg: number | null;
   notes: string | null;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ApiContact {
@@ -160,6 +161,7 @@ export interface ApiInboxItem {
   id: string;
   content: string;
   processed: boolean;
+  created_at?: string;
 }
 
 export interface ApiDashboard {

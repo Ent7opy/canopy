@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Target, Plus } from "lucide-react";
+import { Target, Plus, Trash2 } from "lucide-react";
 import { useGoals } from "@/hooks/useGoals";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,21 @@ const statusColor: Record<string, string> = {
   active:    "text-forest border-forest",
   completed: "text-amber-sol border-amber-sol",
   paused:    "text-ink-3 border-bark",
+  abandoned: "text-ink-3 border-bark",
 };
 
-function GoalCard({ goal }: { goal: ApiGoal }) {
+const STATUS_OPTIONS = ["active", "completed", "paused", "abandoned"] as const;
+
+function GoalCard({
+  goal,
+  onStatusChange,
+  onDelete,
+}: {
+  goal: ApiGoal;
+  onStatusChange: (id: string, status: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
   const hasProgress =
     goal.metric_target !== null && goal.metric_target > 0;
   const pct = hasProgress
@@ -33,12 +45,49 @@ function GoalCard({ goal }: { goal: ApiGoal }) {
         <p className="text-[15px] font-medium text-ink font-reading leading-snug flex-1">
           {goal.title}
         </p>
-        <Badge
-          variant="subtle"
-          className={`flex-shrink-0 uppercase text-[9px] tracking-wider ${statusColor[goal.status] ?? ""}`}
-        >
-          {goal.status}
-        </Badge>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Status badge — clickable */}
+          <div className="relative">
+            <button
+              onClick={() => setShowStatusMenu(!showStatusMenu)}
+              className="focus:outline-none"
+            >
+              <Badge
+                variant="subtle"
+                className={`uppercase text-[9px] tracking-wider cursor-pointer hover:opacity-80 ${statusColor[goal.status] ?? ""}`}
+              >
+                {goal.status}
+              </Badge>
+            </button>
+            {showStatusMenu && (
+              <div className="absolute right-0 top-full mt-1 bg-surface border border-bark rounded-[6px] shadow-lg z-10 py-1 min-w-[120px]">
+                {STATUS_OPTIONS.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => {
+                      onStatusChange(goal.id, s);
+                      setShowStatusMenu(false);
+                    }}
+                    className={`block w-full text-left px-3 py-1.5 font-reading text-[12px] hover:bg-surface-2 transition-colors ${
+                      s === goal.status ? "text-forest font-semibold" : "text-ink-2"
+                    }`}
+                  >
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* Delete button */}
+          <button
+            onClick={() => onDelete(goal.id)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-1"
+            aria-label="Delete goal"
+            title="Delete"
+          >
+            <Trash2 size={13} strokeWidth={1.8} />
+          </button>
+        </div>
       </div>
 
       {pct !== null && (
@@ -64,10 +113,11 @@ function GoalCard({ goal }: { goal: ApiGoal }) {
 }
 
 export function GoalsSection() {
-  const { goals, add } = useGoals();
+  const { goals, add, update, remove } = useGoals();
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState("");
   const [timeframe, setTimeframe] = useState("quarterly");
+  const [submitting, setSubmitting] = useState(false);
 
   const grouped = timeframeOrder
     .map((tf) => ({
@@ -77,10 +127,23 @@ export function GoalsSection() {
     .filter((g) => g.items.length > 0);
 
   const handleAdd = async () => {
-    if (!title.trim()) return;
-    await add(title.trim(), { timeframe, status: "active" });
-    setTitle("");
-    setShowAdd(false);
+    if (!title.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      await add(title.trim(), { timeframe, status: "active" });
+      setTitle("");
+      setShowAdd(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Delete this goal?")) remove(id);
+  };
+
+  const handleStatusChange = (id: string, status: string) => {
+    update(id, { status });
   };
 
   return (
@@ -104,7 +167,12 @@ export function GoalsSection() {
             </h4>
             <div className="space-y-3">
               {items.map((goal) => (
-                <GoalCard key={goal.id} goal={goal} />
+                <GoalCard
+                  key={goal.id}
+                  goal={goal}
+                  onStatusChange={handleStatusChange}
+                  onDelete={handleDelete}
+                />
               ))}
             </div>
           </div>
@@ -136,8 +204,8 @@ export function GoalsSection() {
                 </option>
               ))}
             </select>
-            <Button variant="primary" size="sm" onClick={handleAdd} disabled={!title.trim()}>
-              Add goal
+            <Button variant="primary" size="sm" onClick={handleAdd} disabled={!title.trim() || submitting}>
+              {submitting ? "Adding…" : "Add goal"}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)}>
               Cancel

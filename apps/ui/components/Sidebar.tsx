@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Settings } from "lucide-react";
 
 const sections = [
-  { id: "inbox",   label: "Inbox"         },
   { id: "now",     label: "Now"           },
+  { id: "inbox",   label: "Mind Log"      },
   { id: "habits",  label: "Habits"        },
   { id: "journal", label: "Journal"       },
   { id: "health",  label: "Health"        },
@@ -20,7 +20,7 @@ const sections = [
 ];
 
 export default function Sidebar() {
-  const [activeSection, setActiveSection] = useState("inbox");
+  const [activeSection, setActiveSection] = useState("now");
 
   // Track active section via IntersectionObserver
   useEffect(() => {
