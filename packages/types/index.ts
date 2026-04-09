@@ -32,6 +32,7 @@ export interface ApiResource {
   type: 'book' | 'course' | 'article' | 'video' | 'podcast' | 'paper' | 'other';
   title: string;
   author: string | null;
+  url: string | null;
   status: 'backlog' | 'active' | 'completed' | 'abandoned' | 'reference';
   rating: number | null;
   progress_current: number | null;
