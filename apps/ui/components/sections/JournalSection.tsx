@@ -82,7 +82,7 @@ export function JournalSection() {
 
       {/* Today card */}
       <div
-        className="bg-surface border border-bark rounded-[10px] p-8 mb-6"
+        className="bg-surface border border-bark rounded-[10px] p-5 sm:p-8 mb-6"
         style={{ boxShadow: "0 2px 12px rgba(60,40,10,0.04)" }}
       >
         <p className="font-data text-[11px] text-ink-3 uppercase tracking-wider mb-5">
@@ -102,7 +102,7 @@ export function JournalSection() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
           <SliderField
             label="Mood"
             value={mood}
@@ -129,9 +129,9 @@ export function JournalSection() {
               >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : entry.id)}
-                  className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-surface transition-colors"
+                  className="w-full flex items-center justify-between px-4 sm:px-5 py-3.5 text-left hover:bg-surface transition-colors gap-2"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-4 min-w-0">
                     <span className="font-data text-[12px] text-ink-3">{entry.entry_date}</span>
                     {entry.mood !== null && (
                       <span className="font-data text-[11px] text-forest">

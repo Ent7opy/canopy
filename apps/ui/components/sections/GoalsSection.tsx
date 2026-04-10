@@ -38,11 +38,11 @@ function GoalCard({
 
   return (
     <div
-      className="bg-surface border border-bark rounded-[8px] px-5 py-4 group hover:border-forest transition-colors duration-200"
+      className="bg-surface border border-bark rounded-[8px] px-4 sm:px-5 py-4 group hover:border-forest transition-colors duration-200"
       style={{ boxShadow: "0 1px 6px rgba(60,40,10,0.03)" }}
     >
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <p className="text-[15px] font-medium text-ink font-reading leading-snug flex-1">
+      <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
+        <p className="text-[15px] font-medium text-ink font-reading leading-snug flex-1 min-w-0 break-words">
           {goal.title}
         </p>
         <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -78,10 +78,11 @@ function GoalCard({
               </div>
             )}
           </div>
-          {/* Delete button */}
+          {/* Delete button. Hover-reveal on desktop (pointer devices), but
+              always visible on touch devices since there's no hover state. */}
           <button
             onClick={() => onDelete(goal.id)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-1"
+            className="opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-1"
             aria-label="Delete goal"
             title="Delete"
           >
@@ -181,7 +182,7 @@ export function GoalsSection() {
 
       {/* Add goal */}
       {showAdd ? (
-        <div className="bg-surface border border-bark rounded-[8px] p-5 space-y-3">
+        <div className="bg-surface border border-bark rounded-[8px] p-4 sm:p-5 space-y-3">
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -192,11 +193,11 @@ export function GoalsSection() {
             placeholder="Goal title…"
             autoFocus
           />
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
             <select
               value={timeframe}
               onChange={(e) => setTimeframe(e.target.value)}
-              className="font-reading text-[13px] text-ink bg-transparent border border-bark rounded-[6px] px-3 py-2 focus:outline-none focus:border-forest flex-1"
+              className="font-reading text-[13px] text-ink bg-transparent border border-bark rounded-[6px] px-3 py-2 focus:outline-none focus:border-forest w-full sm:flex-1"
             >
               {timeframeOrder.map((tf) => (
                 <option key={tf} value={tf}>
@@ -204,12 +205,14 @@ export function GoalsSection() {
                 </option>
               ))}
             </select>
-            <Button variant="primary" size="sm" onClick={handleAdd} disabled={!title.trim() || submitting}>
-              {submitting ? "Adding…" : "Add goal"}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)}>
-              Cancel
-            </Button>
+            <div className="flex gap-2 sm:gap-3">
+              <Button variant="primary" size="sm" onClick={handleAdd} disabled={!title.trim() || submitting}>
+                {submitting ? "Adding…" : "Add goal"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setShowAdd(false)}>
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
       ) : (

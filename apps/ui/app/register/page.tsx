@@ -36,11 +36,11 @@ export default function RegisterPage() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-parchment flex items-center justify-center px-4">
+      <div className="min-h-screen bg-parchment flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-[420px] text-center">
-          <h1 className="font-display text-5xl font-bold text-forest italic mb-2">Canopy</h1>
-          <p className="font-reading text-ink-2 italic text-base mb-10">your life, tended carefully</p>
-          <div className="bg-surface border border-sepia rounded-2xl p-8">
+          <h1 className="font-display text-[40px] sm:text-5xl font-bold text-forest italic mb-2">Canopy</h1>
+          <p className="font-reading text-ink-2 italic text-[15px] sm:text-base mb-8 sm:mb-10">your life, tended carefully</p>
+          <div className="bg-surface border border-sepia rounded-2xl p-6 sm:p-8">
             <div className="text-4xl mb-4">🌿</div>
             <h2 className="font-display text-2xl text-ink font-bold mb-3">Check your inbox</h2>
             <p className="font-reading text-ink-2 leading-relaxed">
@@ -59,14 +59,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-parchment flex items-center justify-center px-4">
+    <div className="min-h-screen bg-parchment flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-[420px]">
-        <div className="text-center mb-10">
-          <h1 className="font-display text-5xl font-bold text-forest italic mb-2">Canopy</h1>
-          <p className="font-reading text-ink-2 italic text-base">your life, tended carefully</p>
+        <div className="text-center mb-8 sm:mb-10">
+          <h1 className="font-display text-[40px] sm:text-5xl font-bold text-forest italic mb-2">Canopy</h1>
+          <p className="font-reading text-ink-2 italic text-[15px] sm:text-base">your life, tended carefully</p>
         </div>
 
-        <div className="bg-surface border border-sepia rounded-2xl p-8 shadow-sm">
+        <div className="bg-surface border border-sepia rounded-2xl p-6 sm:p-8 shadow-sm">
           <h2 className="font-display text-2xl text-ink font-bold mb-6">Create your account</h2>
 
           {error && (
@@ -82,7 +82,7 @@ export default function RegisterPage() {
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-base focus:outline-none focus:border-forest transition-colors"
+                className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-[16px] focus:outline-none focus:border-forest transition-colors"
                 placeholder="Vanyo"
               />
             </div>
@@ -93,7 +93,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-base focus:outline-none focus:border-forest transition-colors"
+                className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-[16px] focus:outline-none focus:border-forest transition-colors"
                 placeholder="you@example.com"
               />
             </div>
@@ -105,7 +105,7 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-base focus:outline-none focus:border-forest transition-colors"
+                className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-[16px] focus:outline-none focus:border-forest transition-colors"
                 placeholder="At least 8 characters"
               />
             </div>

@@ -62,7 +62,7 @@ export default function BookshelfShelf({
 
   return (
     <section
-      className="relative rounded-[14px] border border-bark-subtle bg-surface px-6 pt-6 pb-7 mb-6 overflow-hidden"
+      className="relative rounded-[14px] border border-bark-subtle bg-surface px-4 sm:px-6 pt-5 sm:pt-6 pb-6 sm:pb-7 mb-6 overflow-hidden"
       style={{ boxShadow: "0 2px 14px rgba(60,40,10,0.05)" }}
     >
       {/* Paper grain */}
@@ -84,13 +84,14 @@ export default function BookshelfShelf({
         {Icon({ size: corner.size, className: "", strokeWidth: 1.1 })}
       </div>
 
-      {/* Plate header */}
-      <header className="relative flex items-end justify-between gap-4 mb-5">
-        <div className="flex items-baseline gap-3 min-w-0">
+      {/* Plate header — on mobile the title row and the sort control stack
+          to give both full width instead of squeezing into one line. */}
+      <header className="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 mb-5">
+        <div className="flex items-baseline gap-2 sm:gap-3 min-w-0 flex-wrap">
           <span className="text-forest flex-shrink-0 -translate-y-[2px]">
             {Icon({ size: 18, className: "", strokeWidth: 1.6 })}
           </span>
-          <h3 className="font-display italic font-semibold text-[22px] text-ink leading-none">
+          <h3 className="font-display italic font-semibold text-[19px] sm:text-[22px] text-ink leading-none">
             {title}
           </h3>
           <span className="font-data text-[11px] text-ink-3 tabular-nums">
@@ -102,7 +103,7 @@ export default function BookshelfShelf({
             </span>
           )}
         </div>
-        {sortControl && <div className="flex-shrink-0">{sortControl}</div>}
+        {sortControl && <div className="flex-shrink-0 self-start sm:self-auto">{sortControl}</div>}
       </header>
 
       {/* Plate body */}

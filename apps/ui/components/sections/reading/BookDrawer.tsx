@@ -155,21 +155,21 @@ export default function BookDrawer({ book, open, onClose, onSave, onDelete }: Bo
           strokeWidth={1.1}
         />
 
-        <div className="relative p-8 pb-10">
+        <div className="relative p-5 sm:p-8 pb-10">
           {/* Close */}
           <button
             type="button"
             onClick={onClose}
             aria-label="Close drawer"
-            className="absolute top-5 right-5 w-8 h-8 rounded-full border border-bark text-ink-2 hover:border-forest hover:text-forest transition-colors flex items-center justify-center"
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 w-9 h-9 sm:w-8 sm:h-8 rounded-full border border-bark text-ink-2 hover:border-forest hover:text-forest transition-colors flex items-center justify-center bg-surface/90 backdrop-blur-sm"
           >
             <X size={14} strokeWidth={1.8} />
           </button>
 
           {/* Header — cover + type label */}
-          <div className="flex items-end gap-5 mb-8 pr-10">
+          <div className="flex items-end gap-4 sm:gap-5 mb-8 pr-10">
             <div className="flex-shrink-0">
-              <BookCover coverUrl={book.cover_url} title={title || book.title} width={110} raw />
+              <BookCover coverUrl={book.cover_url} title={title || book.title} width={90} raw />
             </div>
             <div className="flex-1 pb-2 min-w-0">
               <div className="flex items-center gap-2 text-ink-3 mb-1">
@@ -178,7 +178,7 @@ export default function BookDrawer({ book, open, onClose, onSave, onDelete }: Bo
                   Specimen
                 </span>
               </div>
-              <p className="font-display italic font-semibold text-[22px] text-ink leading-tight line-clamp-3">
+              <p className="font-display italic font-semibold text-[18px] sm:text-[22px] text-ink leading-tight line-clamp-3">
                 {title || "Untitled"}
               </p>
               {author && (

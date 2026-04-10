@@ -55,11 +55,11 @@ export function ProjectsSection() {
       {projects.length === 0 ? (
         <p className="font-reading text-[14px] text-ink-3 italic mb-6">No projects loaded yet.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           {projects.map((proj) => (
             <div
               key={proj.id}
-              className="bg-surface border border-bark rounded-[10px] p-6 group hover:border-forest hover:-translate-y-0.5 transition-all duration-300"
+              className="bg-surface border border-bark rounded-[10px] p-5 sm:p-6 group hover:border-forest hover:-translate-y-0.5 transition-all duration-300"
               style={{ boxShadow: "0 2px 8px rgba(60,40,10,0.03)" }}
             >
               <div className="flex items-center gap-2 mb-3">
@@ -72,7 +72,7 @@ export function ProjectsSection() {
                 </h4>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(proj.id); }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5"
+                  className="opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5"
                   aria-label="Delete project"
                   title="Delete"
                 >

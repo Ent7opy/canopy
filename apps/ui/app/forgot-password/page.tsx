@@ -22,12 +22,12 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-parchment flex items-center justify-center px-4">
+    <div className="min-h-screen bg-parchment flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-[420px]">
-        <div className="text-center mb-10">
-          <h1 className="font-display text-5xl font-bold text-forest italic mb-2">Canopy</h1>
+        <div className="text-center mb-8 sm:mb-10">
+          <h1 className="font-display text-[40px] sm:text-5xl font-bold text-forest italic mb-2">Canopy</h1>
         </div>
-        <div className="bg-surface border border-sepia rounded-2xl p-8 shadow-sm">
+        <div className="bg-surface border border-sepia rounded-2xl p-6 sm:p-8 shadow-sm">
           {sent ? (
             <div className="text-center">
               <div className="text-3xl mb-3">📬</div>
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-base focus:outline-none focus:border-forest transition-colors"
+                  className="w-full bg-parchment border border-sepia rounded-lg px-4 py-2.5 font-reading text-ink text-[16px] focus:outline-none focus:border-forest transition-colors"
                   placeholder="you@example.com"
                 />
                 <button
