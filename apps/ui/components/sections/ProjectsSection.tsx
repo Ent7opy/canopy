@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Settings2, Plus } from "lucide-react";
+import { Settings2, Plus, X } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,11 @@ const statusDot: Record<string, string> = {
 };
 
 export function ProjectsSection() {
-  const { projects, add } = useProjects();
+  const { projects, add, remove } = useProjects();
+
+  const handleDelete = (id: string) => {
+    if (confirm("Delete this project?")) remove(id);
+  };
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
@@ -62,9 +66,17 @@ export function ProjectsSection() {
                   className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ backgroundColor: statusDot[proj.status] ?? "#c8b99a" }}
                 />
-                <h4 className="text-[17px] font-bold text-ink font-display group-hover:text-forest transition-colors">
+                <h4 className="text-[17px] font-bold text-ink font-display group-hover:text-forest transition-colors flex-1">
                   {proj.name}
                 </h4>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(proj.id); }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5"
+                  aria-label="Delete project"
+                  title="Delete"
+                >
+                  <X size={13} strokeWidth={2} />
+                </button>
               </div>
 
               {proj.type && (

@@ -78,13 +78,22 @@ router.patch('/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// DELETE /:id — soft delete
+// DELETE /:id — hard delete (habit_logs cascade; notes and entity_tags cleaned up explicitly)
 router.delete('/:id', async (req, res, next) => {
   try {
     await pool.query(
-      'UPDATE habits SET archived_at = NOW() WHERE id = $1 AND user_id = $2',
+      'DELETE FROM entity_tags WHERE entity_type = $1 AND entity_id = $2',
+      ['habit', req.params.id]
+    );
+    await pool.query(
+      'DELETE FROM notes WHERE entity_type = $1 AND entity_id = $2 AND user_id = $3',
+      ['habit', req.params.id, req.user.id]
+    );
+    const { rowCount } = await pool.query(
+      'DELETE FROM habits WHERE id = $1 AND user_id = $2',
       [req.params.id, req.user.id]
     );
+    if (rowCount === 0) return res.status(404).json({ error: 'Habit not found' });
     res.status(204).send();
   } catch (err) { next(err); }
 });

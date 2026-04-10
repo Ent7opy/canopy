@@ -94,13 +94,22 @@ router.patch('/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// DELETE /:id — soft delete
+// DELETE /:id — hard delete (learning_nodes.resource_id set null by DB; notes and entity_tags cleaned up explicitly)
 router.delete('/:id', async (req, res, next) => {
   try {
     await pool.query(
-      'UPDATE resources SET archived_at = NOW() WHERE id = $1 AND user_id = $2',
+      'DELETE FROM entity_tags WHERE entity_type = $1 AND entity_id = $2',
+      ['resource', req.params.id]
+    );
+    await pool.query(
+      'DELETE FROM notes WHERE entity_type = $1 AND entity_id = $2 AND user_id = $3',
+      ['resource', req.params.id, req.user.id]
+    );
+    const { rowCount } = await pool.query(
+      'DELETE FROM resources WHERE id = $1 AND user_id = $2',
       [req.params.id, req.user.id]
     );
+    if (rowCount === 0) return res.status(404).json({ error: 'Resource not found' });
     res.status(204).send();
   } catch (err) { next(err); }
 });

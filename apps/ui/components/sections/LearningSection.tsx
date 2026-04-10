@@ -102,9 +102,19 @@ export function LearningSection() {
               <div className="font-data text-[11px] text-ink-3 uppercase tracking-wider mb-1">
                 Currently studying
               </div>
-              <h4 className="text-[20px] font-bold text-ink mb-2 font-display leading-snug">
-                {featured.title}
-              </h4>
+              <div className="flex items-start gap-2">
+                <h4 className="text-[20px] font-bold text-ink mb-2 font-display leading-snug flex-1">
+                  {featured.title}
+                </h4>
+                <button
+                  onClick={() => handleDelete(featured.id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5 flex-shrink-0 mt-1"
+                  aria-label="Delete resource"
+                  title="Delete"
+                >
+                  <X size={13} strokeWidth={2} />
+                </button>
+              </div>
               {featured.author && (
                 <p className="font-data text-[12px] text-ink-3 mb-2">{featured.author}</p>
               )}

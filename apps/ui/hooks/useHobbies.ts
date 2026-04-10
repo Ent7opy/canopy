@@ -1,10 +1,15 @@
 'use client';
 import { useEffect } from 'react';
 import { useDashboardStore } from '@/store/dashboardStore';
-import { getHobbies, createHobby, patchHobby, logHobbySession, type ApiHobby } from '@/lib/api';
+import { getHobbies, createHobby, patchHobby, deleteHobby, logHobbySession, type ApiHobby } from '@/lib/api';
 
 export function useHobbies(status?: string) {
   const { hobbies, setHobbies, upsertHobby, removeHobby } = useDashboardStore();
+
+  function remove(id: string) {
+    removeHobby(id);
+    deleteHobby(id);
+  }
 
   useEffect(() => {
     getHobbies(status).then((data) => {
@@ -28,5 +33,5 @@ export function useHobbies(status?: string) {
     await logHobbySession(hobbyId, { log_date: today, duration_min, notes });
   }
 
-  return { hobbies, add, update, logSession };
+  return { hobbies, add, update, remove, logSession };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Check, Plus, Sprout, Undo2 } from "lucide-react";
+import { Check, Plus, Sprout, Undo2, X } from "lucide-react";
 import { useHabits } from "@/hooks/useHabits";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,11 @@ import OakDivider from "@/components/OakDivider";
 const UNDO_WINDOW_MS = 5000;
 
 export function HabitsSection() {
-  const { habits, complete, uncomplete, add } = useHabits();
+  const { habits, complete, uncomplete, add, remove } = useHabits();
+
+  const handleDelete = (id: string) => {
+    if (confirm("Delete this habit?")) remove(id);
+  };
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
   const [recentlyDone, setRecentlyDone] = useState<Record<string, boolean>>({});
@@ -87,7 +91,7 @@ export function HabitsSection() {
             return (
               <div
                 key={habit.id}
-                className={`border rounded-[10px] p-5 flex items-center justify-between transition-all duration-200 ${
+                className={`group border rounded-[10px] p-5 flex items-center justify-between transition-all duration-200 ${
                   isDone
                     ? "bg-forest-dim border-forest"
                     : "bg-surface border-bark hover:border-forest"
@@ -95,9 +99,19 @@ export function HabitsSection() {
                 style={{ boxShadow: "0 1px 6px rgba(60,40,10,0.04)" }}
               >
                 <div className="flex-1 min-w-0 pr-3">
-                  <p className={`text-[15px] font-medium font-reading leading-snug ${isDone ? "text-forest" : "text-ink"}`}>
-                    {habit.name}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <p className={`text-[15px] font-medium font-reading leading-snug ${isDone ? "text-forest" : "text-ink"}`}>
+                      {habit.name}
+                    </p>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(habit.id); }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5"
+                      aria-label="Delete habit"
+                      title="Delete"
+                    >
+                      <X size={13} strokeWidth={2} />
+                    </button>
+                  </div>
                   <Badge variant="subtle" className="mt-1.5">
                     {habit.frequency}
                   </Badge>
