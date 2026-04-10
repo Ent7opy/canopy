@@ -21,8 +21,8 @@ export default function StreamPage() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen flex justify-center py-20">
-      <div className="w-full max-w-[780px] px-8">
+    <div className="min-h-screen flex justify-center py-10 sm:py-14 md:py-20">
+      <div className="w-full max-w-[780px] px-4 sm:px-6 md:px-8">
         <InboxSection />
         <HabitsSection />
         <JournalSection />

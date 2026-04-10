@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { X } from "lucide-react";
 
 // Three conceptual groups that reinforce the Stream/Garden mental model:
 //   Timeline — the "when" of the app (today + the historical record)      → /
@@ -55,7 +56,14 @@ const groups: NavGroup[] = [
 // Weekly Review sits on its own route below the three main groups.
 const REVIEW_ROUTE = "/review";
 
-export default function Sidebar() {
+type SidebarProps = {
+  /** Whether the mobile drawer is currently open (< md breakpoint). */
+  mobileOpen?: boolean;
+  /** Invoked when the user dismisses the mobile drawer (tap close/nav link). */
+  onMobileClose?: () => void;
+};
+
+export default function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps = {}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -83,7 +91,15 @@ export default function Sidebar() {
     targetRoute: string
   ) => {
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    if (targetRoute !== pathname) return;
+
+    // Cross-route clicks: let <Link> handle the navigation, but close the
+    // mobile drawer on the way out so users don't land on the new page with
+    // the sidebar still covering it. AppShell also closes the drawer on
+    // pathname change, but closing eagerly avoids a perceptible lag.
+    if (targetRoute !== pathname) {
+      onMobileClose?.();
+      return;
+    }
 
     e.preventDefault();
 
@@ -98,6 +114,10 @@ export default function Sidebar() {
     // Replace the URL bar directly — no router navigation, no re-render.
     // Preserves whatever router state we currently have.
     window.history.replaceState(window.history.state, "", href);
+
+    // Also close the drawer on same-route hash taps — the user clearly
+    // meant to jump to a section, not keep browsing the nav.
+    onMobileClose?.();
   };
 
   // Figure out which group the current route belongs to so we can both
@@ -169,7 +189,23 @@ export default function Sidebar() {
   const reviewHref = withQuery(REVIEW_ROUTE);
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[200px] border-r border-[#c8b99a] bg-[#f7f3e9] flex flex-col p-8 z-40 overflow-y-auto">
+    <aside
+      className={`fixed left-0 top-0 h-screen w-[240px] md:w-[200px] border-r border-[#c8b99a] bg-[#f7f3e9] flex flex-col p-6 md:p-8 z-40 overflow-y-auto transition-transform duration-300 ease-out md:translate-x-0 ${
+        mobileOpen ? "translate-x-0 shadow-2xl shadow-ink/20" : "-translate-x-full"
+      }`}
+      aria-hidden={!mobileOpen ? undefined : false}
+    >
+      {/* Mobile close button — only rendered below md. On desktop the drawer
+          is always visible so we hide the button entirely. */}
+      <button
+        type="button"
+        aria-label="Close navigation"
+        onClick={onMobileClose}
+        className="md:hidden absolute top-3 right-3 w-9 h-9 rounded-full text-ink-2 hover:text-forest hover:bg-surface-2 transition-colors flex items-center justify-center"
+      >
+        <X size={18} strokeWidth={1.8} />
+      </button>
+
       {/* Wordmark */}
       <div className="mb-10 flex flex-col gap-2 flex-shrink-0">
         <h1 className="text-[28px] font-bold text-[#3d6b4f] font-display italic leading-none tracking-tight">
@@ -210,7 +246,7 @@ export default function Sidebar() {
                       key={id}
                       href={itemHref}
                       onClick={(e) => navigate(e, itemHref, group.route)}
-                      className={`flex items-center gap-2.5 text-[14px] font-reading text-left transition-colors duration-200 ${
+                      className={`flex items-center gap-2.5 py-1.5 md:py-0 text-[15px] md:text-[14px] font-reading text-left transition-colors duration-200 ${
                         isActive
                           ? "text-[#3d6b4f] font-semibold"
                           : "text-[#5c5540] hover:text-[#3d6b4f]"
@@ -240,7 +276,7 @@ export default function Sidebar() {
         <Link
           href={reviewHref}
           onClick={(e) => navigate(e, reviewHref, REVIEW_ROUTE)}
-          className={`flex items-center gap-2.5 text-[14px] font-reading text-left transition-colors duration-200 ${
+          className={`flex items-center gap-2.5 py-1.5 md:py-0 text-[15px] md:text-[14px] font-reading text-left transition-colors duration-200 ${
             isReviewRoute
               ? "text-[#3d6b4f] font-semibold"
               : "text-[#5c5540] hover:text-[#3d6b4f]"

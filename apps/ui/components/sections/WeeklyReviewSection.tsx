@@ -97,7 +97,7 @@ function WeeklyHero({
 
   return (
     <header
-      className="relative mb-10 overflow-hidden rounded-[14px] border border-bark-subtle bg-surface px-8 pt-10 pb-8"
+      className="relative mb-10 overflow-hidden rounded-[14px] border border-bark-subtle bg-surface px-5 sm:px-8 pt-7 sm:pt-10 pb-7 sm:pb-8"
       style={{ boxShadow: "0 3px 18px rgba(60,40,10,0.05)" }}
     >
       {/* Faint paper-grain texture via repeating-linear-gradient. Just enough
@@ -116,23 +116,23 @@ function WeeklyHero({
         strokeWidth={1.1}
       />
 
-      <div className="relative flex items-end gap-6 mb-8">
+      <div className="relative flex items-end gap-4 sm:gap-6 mb-8">
         <div className="flex flex-col items-center flex-shrink-0">
           <span className="font-data text-[10px] uppercase tracking-[0.22em] text-ink-3 mb-1">
             Week
           </span>
           <span
             className="font-display italic font-semibold text-forest leading-none"
-            style={{ fontSize: "88px" }}
+            style={{ fontSize: "clamp(3.5rem, 14vw, 5.5rem)" }}
           >
             {weekNumber}
           </span>
         </div>
-        <div className="flex-1 pb-3">
-          <p className="font-display italic text-[24px] text-ink leading-snug mb-2">
+        <div className="flex-1 pb-2 sm:pb-3 min-w-0">
+          <p className="font-display italic text-[18px] sm:text-[24px] text-ink leading-snug mb-2">
             {isThisWeek ? "This week in Canopy" : "That week in Canopy"}
           </p>
-          <p className="font-reading italic text-[14px] text-ink-2 max-w-[460px]">
+          <p className="font-reading italic text-[13px] sm:text-[14px] text-ink-2 max-w-[460px]">
             {subtitle}
           </p>
         </div>
@@ -140,7 +140,7 @@ function WeeklyHero({
 
       {/* Calendar ribbon — 7 day tiles. Past days muted; today marked with a
           small forest dot; future days drawn faint. */}
-      <div className="relative grid grid-cols-7 gap-2">
+      <div className="relative grid grid-cols-7 gap-1.5 sm:gap-2">
         {days.map((iso) => {
           const isToday = iso === today;
           const isPast = iso < today;
@@ -149,7 +149,7 @@ function WeeklyHero({
           return (
             <div
               key={iso}
-              className={`flex flex-col items-center py-3 rounded-[8px] border transition-colors ${
+              className={`flex flex-col items-center py-2.5 sm:py-3 rounded-[8px] border transition-colors ${
                 isToday
                   ? "border-forest bg-forest-dim"
                   : dim
@@ -167,10 +167,10 @@ function WeeklyHero({
               <span
                 className={`font-display italic font-semibold leading-none mt-1 ${
                   isToday
-                    ? "text-forest text-[22px]"
+                    ? "text-forest text-[17px] sm:text-[22px]"
                     : dim
-                    ? "text-ink-3/60 text-[20px]"
-                    : "text-ink text-[20px]"
+                    ? "text-ink-3/60 text-[16px] sm:text-[20px]"
+                    : "text-ink text-[16px] sm:text-[20px]"
                 }`}
               >
                 {dayOfMonth(iso)}
@@ -200,7 +200,10 @@ function PulseStrip({ pulse }: { pulse: WeeklyPulse }) {
       : "—";
 
   return (
-    <div className="grid grid-cols-12 gap-3 mb-10">
+    // Pulse strip — on mobile we stack the feature tile above a 3-across
+    // satellite row so every tile stays readable. On sm+ we restore the
+    // asymmetric 12-col layout: one wide feature + three narrow satellites.
+    <div className="grid grid-cols-6 sm:grid-cols-12 gap-3 mb-10">
       {/* Feature tile — avg mood, wider, with a sprig icon */}
       <FeatureTile
         label="Average mood"
@@ -246,7 +249,7 @@ function FeatureTile({
 }) {
   return (
     <div
-      className="col-span-6 relative rounded-[12px] border border-bark bg-surface-2 px-6 py-5 flex flex-col justify-between overflow-hidden"
+      className="col-span-6 relative rounded-[12px] border border-bark bg-surface-2 px-5 sm:px-6 py-5 flex flex-col justify-between overflow-hidden"
       style={{ boxShadow: "0 2px 12px rgba(60,40,10,0.05)" }}
     >
       <Leaf
@@ -261,7 +264,10 @@ function FeatureTile({
         </span>
       </div>
       <div className="relative flex items-baseline gap-1 mt-1">
-        <span className="font-display italic font-semibold text-forest leading-none text-[56px]">
+        <span
+          className="font-display italic font-semibold text-forest leading-none"
+          style={{ fontSize: "clamp(2.5rem, 10vw, 3.5rem)" }}
+        >
           {value}
         </span>
         {suffix && (
@@ -283,13 +289,13 @@ function SatelliteTile({
   caption?: string;
 }) {
   return (
-    <div className="col-span-2 rounded-[12px] border border-bark-subtle bg-surface px-4 py-4 flex flex-col justify-between min-h-[138px]">
+    <div className="col-span-2 rounded-[12px] border border-bark-subtle bg-surface px-3 sm:px-4 py-4 flex flex-col justify-between min-h-[108px] sm:min-h-[138px]">
       <div className="flex items-center gap-1.5 text-ink-3">
         {icon}
         <span className="font-data text-[9px] uppercase tracking-[0.16em]">{label}</span>
       </div>
       <div className="flex items-baseline gap-1 mt-2">
-        <span className="font-display italic font-semibold text-ink leading-none text-[28px]">
+        <span className="font-display italic font-semibold text-ink leading-none text-[22px] sm:text-[28px]">
           {value}
         </span>
         {suffix && <span className="font-data text-[11px] text-ink-3">{suffix}</span>}
@@ -506,7 +512,7 @@ function HabitRhythmGrid({
         style={{ boxShadow: "0 2px 10px rgba(60,40,10,0.04)" }}
       >
         {/* Header row — weekday letters above each column */}
-        <div className="grid grid-cols-[minmax(0,1fr)_repeat(7,32px)_56px] gap-x-2 items-center px-5 py-3 border-b border-bark-subtle/60">
+        <div className="grid grid-cols-[minmax(0,1fr)_repeat(7,22px)_40px] sm:grid-cols-[minmax(0,1fr)_repeat(7,32px)_56px] gap-x-1.5 sm:gap-x-2 items-center px-3 sm:px-5 py-3 border-b border-bark-subtle/60">
           <span className="font-data text-[9px] uppercase tracking-[0.16em] text-ink-3">
             habit
           </span>
@@ -536,7 +542,7 @@ function HabitRhythmGrid({
           return (
             <div
               key={habit.id}
-              className="grid grid-cols-[minmax(0,1fr)_repeat(7,32px)_56px] gap-x-2 items-center px-5 py-3 border-b border-bark-subtle/40 last:border-b-0 hover:bg-surface-2/50 transition-colors"
+              className="grid grid-cols-[minmax(0,1fr)_repeat(7,22px)_40px] sm:grid-cols-[minmax(0,1fr)_repeat(7,32px)_56px] gap-x-1.5 sm:gap-x-2 items-center px-3 sm:px-5 py-3 border-b border-bark-subtle/40 last:border-b-0 hover:bg-surface-2/50 transition-colors"
             >
               <span className="font-reading text-[13px] text-ink-2 truncate">
                 {habit.name}
@@ -768,13 +774,13 @@ function GardenActivity({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {resources.map((r) => {
           const finishedOn = r.completed_at?.slice(0, 10);
           return (
             <div
               key={r.id}
-              className="rounded-[10px] border border-bark-subtle bg-surface-2 px-5 py-4 flex gap-4 items-start"
+              className="rounded-[10px] border border-bark-subtle bg-surface-2 px-4 sm:px-5 py-4 flex gap-4 items-start"
               style={{ boxShadow: "0 1px 6px rgba(60,40,10,0.03)" }}
             >
               <div className="mt-0.5 text-forest flex-shrink-0">

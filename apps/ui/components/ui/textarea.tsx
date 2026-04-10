@@ -11,7 +11,9 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     <textarea
       ref={ref}
       className={cn(
-        "font-reading text-[15px] text-ink placeholder:text-ink-3 bg-transparent",
+        // 16px on mobile avoids iOS Safari's auto-zoom on focus; we drop
+        // back to 15px at sm+ for the tighter reading-size look.
+        "font-reading text-[16px] sm:text-[15px] text-ink placeholder:text-ink-3 bg-transparent",
         "focus:outline-none transition-colors duration-150 resize-none",
         underline
           ? "border-b border-bark focus:border-forest w-full py-2"

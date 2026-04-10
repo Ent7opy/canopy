@@ -172,7 +172,7 @@ export function HealthSection() {
       </div>
 
       <div
-        className="bg-surface border border-bark rounded-[10px] p-8"
+        className="bg-surface border border-bark rounded-[10px] p-5 sm:p-8"
         style={{ boxShadow: "0 2px 12px rgba(60,40,10,0.04)" }}
       >
         <p className="font-data text-[11px] text-ink-3 uppercase tracking-wider mb-6">

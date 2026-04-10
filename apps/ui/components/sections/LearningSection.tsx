@@ -85,7 +85,7 @@ export function LearningSection() {
       {/* Featured current focus */}
       {featured ? (
         <div
-          className="bg-surface border border-bark rounded-[10px] p-8 relative overflow-hidden group mb-6"
+          className="bg-surface border border-bark rounded-[10px] p-5 sm:p-8 relative overflow-hidden group mb-6"
           style={{ boxShadow: "0 2px 12px rgba(60,40,10,0.04)" }}
         >
           <div className="absolute top-0 right-0 opacity-[0.05] group-hover:opacity-[0.09] transition-opacity duration-500 pointer-events-none">
@@ -94,21 +94,21 @@ export function LearningSection() {
             </svg>
           </div>
 
-          <div className="flex gap-7 items-start">
-            <div className="w-14 h-14 bg-surface-2 rounded-full flex items-center justify-center border border-bark flex-shrink-0">
-              <Wind className="text-amber-sol" size={24} strokeWidth={1.5} />
+          <div className="flex gap-4 sm:gap-7 items-start">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-surface-2 rounded-full flex items-center justify-center border border-bark flex-shrink-0">
+              <Wind className="text-amber-sol" size={22} strokeWidth={1.5} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-data text-[11px] text-ink-3 uppercase tracking-wider mb-1">
                 Currently studying
               </div>
               <div className="flex items-start gap-2">
-                <h4 className="text-[20px] font-bold text-ink mb-2 font-display leading-snug flex-1">
+                <h4 className="text-[17px] sm:text-[20px] font-bold text-ink mb-2 font-display leading-snug flex-1 min-w-0 break-words">
                   {featured.title}
                 </h4>
                 <button
                   onClick={() => handleDelete(featured.id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5 flex-shrink-0 mt-1"
+                  className="opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5 flex-shrink-0 mt-1"
                   aria-label="Delete resource"
                   title="Delete"
                 >

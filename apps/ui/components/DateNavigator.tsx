@@ -4,16 +4,20 @@ import { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useActiveDate } from '@/hooks/useActiveDate';
 
-function formatLabel(iso: string): string {
+// On desktop we show the long form ("Thursday, 10 April 2026"); on mobile the
+// full weekday + year would overflow next to the prev/next buttons and the
+// hamburger, so we render a compact form instead ("Thu 10 Apr"). Both use
+// `en-GB` so the day comes before the month (10 Apr, not Apr 10).
+function formatLabel(iso: string, compact: boolean): string {
   // Parse YYYY-MM-DD as local date (avoid UTC drift on the display label).
   const [y, m, d] = iso.split('-').map(Number);
   const dt = new Date(y, m - 1, d, 12, 0, 0, 0);
-  return dt.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  return dt.toLocaleDateString(
+    'en-GB',
+    compact
+      ? { weekday: 'short', day: 'numeric', month: 'short' }
+      : { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
+  );
 }
 
 export default function DateNavigator() {
@@ -28,24 +32,39 @@ export default function DateNavigator() {
     else el.focus();
   };
 
+  const longLabel = formatLabel(date, false);
+  const shortLabel = formatLabel(date, true);
+
   return (
-    <div className="flex items-center justify-center gap-4 py-4 px-6 border-b border-bark-subtle bg-parchment/70 backdrop-blur-sm">
+    // pl-16 on mobile reserves space for the fixed hamburger button (top-3
+    // left-3 w-10 = ~52px). On md+ we drop that reservation because the
+    // hamburger is hidden.
+    <div className="flex items-center justify-center gap-1.5 sm:gap-4 py-3 sm:py-4 pl-16 pr-3 sm:px-6 md:pl-6 border-b border-bark-subtle bg-parchment/70 backdrop-blur-sm">
       <button
         onClick={prev}
         aria-label="Previous day"
-        className="w-9 h-9 rounded-full border border-bark text-ink-2 hover:border-forest hover:text-forest transition-colors flex items-center justify-center"
+        className="w-9 h-9 rounded-full border border-bark text-ink-2 hover:border-forest hover:text-forest transition-colors flex items-center justify-center flex-shrink-0"
       >
         <ChevronLeft size={16} strokeWidth={2} />
       </button>
 
       <button
         onClick={openPicker}
-        className="flex items-center gap-2 px-4 py-1.5 rounded-md hover:bg-surface-2 transition-colors group"
+        className="flex items-center gap-2 px-2 sm:px-4 py-1.5 rounded-md hover:bg-surface-2 transition-colors group min-w-0"
         aria-label="Pick a date"
       >
-        <Calendar size={14} className="text-ink-3 group-hover:text-forest transition-colors" strokeWidth={1.8} />
-        <span className="font-display text-[16px] font-semibold text-ink tabular-nums">
-          {formatLabel(date)}
+        <Calendar
+          size={14}
+          className="text-ink-3 group-hover:text-forest transition-colors flex-shrink-0 hidden sm:block"
+          strokeWidth={1.8}
+        />
+        {/* Two spans, one per breakpoint — avoids Intl calls at render time
+            twice and keeps the DOM static. */}
+        <span className="sm:hidden font-display text-[14px] font-semibold text-ink tabular-nums truncate">
+          {shortLabel}
+        </span>
+        <span className="hidden sm:inline font-display text-[16px] font-semibold text-ink tabular-nums truncate">
+          {longLabel}
         </span>
       </button>
 
@@ -63,7 +82,7 @@ export default function DateNavigator() {
       <button
         onClick={next}
         aria-label="Next day"
-        className="w-9 h-9 rounded-full border border-bark text-ink-2 hover:border-forest hover:text-forest transition-colors flex items-center justify-center"
+        className="w-9 h-9 rounded-full border border-bark text-ink-2 hover:border-forest hover:text-forest transition-colors flex items-center justify-center flex-shrink-0"
       >
         <ChevronRight size={16} strokeWidth={2} />
       </button>
@@ -71,9 +90,10 @@ export default function DateNavigator() {
       {!isToday && (
         <button
           onClick={reset}
-          className="ml-2 font-reading text-[13px] italic text-forest hover:text-amber-sol transition-colors underline decoration-transparent hover:decoration-amber-sol underline-offset-4"
+          className="ml-1 sm:ml-2 font-reading text-[12px] sm:text-[13px] italic text-forest hover:text-amber-sol transition-colors underline decoration-transparent hover:decoration-amber-sol underline-offset-4 flex-shrink-0"
         >
-          back to today
+          <span className="hidden sm:inline">back to today</span>
+          <span className="sm:hidden">today</span>
         </button>
       )}
     </div>
