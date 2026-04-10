@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { GoalsSection }     from "@/components/sections/GoalsSection";
-import { ProjectsSection }  from "@/components/sections/ProjectsSection";
-import { LearningSection }  from "@/components/sections/LearningSection";
-import { HobbiesSection }   from "@/components/sections/HobbiesSection";
-import { ResourcesSection } from "@/components/sections/ResourcesSection";
+import { GoalsSection }    from "@/components/sections/GoalsSection";
+import { ProjectsSection } from "@/components/sections/ProjectsSection";
+import { LearningSection } from "@/components/sections/LearningSection";
+import { HobbiesSection }  from "@/components/sections/HobbiesSection";
+import { ReadingSection }  from "@/components/sections/reading/ReadingSection";
 
 /**
  * The Garden — status-scoped views.
@@ -26,7 +26,7 @@ export default function GardenPage() {
         <ProjectsSection />
         <LearningSection />
         <HobbiesSection />
-        <ResourcesSection />
+        <ReadingSection />
       </div>
     </div>
   );

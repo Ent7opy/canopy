@@ -127,3 +127,16 @@ textarea {
   font-family: var(--font-lora), Georgia, serif;
   resize: vertical;
 }
+
+/* ── Reading: progress-bar pulse on page log ─────────────────────────────── */
+/* Briefly glows the active-book progress bar when the user logs new pages
+   so the delta is visually unmistakable. Kept out of the component as a
+   plain CSS keyframe — no styled-jsx runtime needed. */
+@keyframes bar-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(192, 125, 46, 0.55); }
+  40%  { box-shadow: 0 0 0 6px rgba(192, 125, 46, 0.18); }
+  100% { box-shadow: 0 0 0 10px rgba(192, 125, 46, 0);    }
+}
+.bar-pulse {
+  animation: bar-pulse 850ms ease-out;
+}
