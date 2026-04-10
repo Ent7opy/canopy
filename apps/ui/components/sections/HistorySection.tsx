@@ -51,11 +51,18 @@ export function HistorySection() {
   const { date: activeDate } = useActiveDate();
 
   // Merge journal + health into a single history list keyed by date.
+  //
+  // The API returns Postgres DATE columns as JS Date objects (node-pg default),
+  // which JSON-serialize to "2026-04-09T00:00:00.000Z". We only want the
+  // "YYYY-MM-DD" head — anything downstream (formatLongDate, isActive, URL)
+  // assumes that shape.
+  const toDateKey = (raw: string) => raw.slice(0, 10);
   const rows = useMemo<HistoryRow[]>(() => {
     const byDate = new Map<string, HistoryRow>();
     for (const e of journalEntries) {
-      byDate.set(e.entry_date, {
-        date: e.entry_date,
+      const date = toDateKey(e.entry_date);
+      byDate.set(date, {
+        date,
         hasJournal: true,
         mood: e.mood ?? null,
         energy: e.energy ?? null,
@@ -64,13 +71,14 @@ export function HistorySection() {
       });
     }
     for (const l of healthLogs) {
-      const existing = byDate.get(l.log_date);
+      const date = toDateKey(l.log_date);
+      const existing = byDate.get(date);
       if (existing) {
         existing.hasHealth = true;
         existing.sleepHours = l.sleep_hours ?? null;
       } else {
-        byDate.set(l.log_date, {
-          date: l.log_date,
+        byDate.set(date, {
+          date,
           hasJournal: false,
           mood: null,
           energy: null,
