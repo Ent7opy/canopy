@@ -37,6 +37,8 @@ export interface ApiResource {
   rating: number | null;
   progress_current: number | null;
   progress_total: number | null;
+  started_at: string | null;
+  completed_at: string | null;
 }
 
 export interface ApiGoal {

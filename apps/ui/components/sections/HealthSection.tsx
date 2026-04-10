@@ -121,26 +121,24 @@ function Sparkline({
 }
 
 export function HealthSection() {
-  const { logs, todayLog, log } = useHealth();
-  const todayStr = new Date().toISOString().split("T")[0];
+  const { logs, activeLog, activeDate, log } = useHealth();
 
-  const [sleepHours, setSleepHours] = useState(todayLog?.sleep_hours ?? 7);
-  const [sleepQuality, setSleepQuality] = useState(todayLog?.sleep_quality ?? 3);
+  const [sleepHours, setSleepHours] = useState(activeLog?.sleep_hours ?? 7);
+  const [sleepQuality, setSleepQuality] = useState(activeLog?.sleep_quality ?? 3);
   const [activityLevel, setActivityLevel] = useState<number>(
-    (todayLog?.metadata?.activity_level as number) ?? 50
+    (activeLog?.metadata?.activity_level as number) ?? 50
   );
   const [performanceNote, setPerformanceNote] = useState<string>(
-    todayLog?.notes ?? ""
+    activeLog?.notes ?? ""
   );
 
+  // Re-sync form whenever the active date changes (or a new log loads for it).
   useEffect(() => {
-    if (todayLog) {
-      setSleepHours(todayLog.sleep_hours ?? 7);
-      setSleepQuality(todayLog.sleep_quality ?? 3);
-      setActivityLevel((todayLog.metadata?.activity_level as number) ?? 50);
-      setPerformanceNote(todayLog.notes ?? "");
-    }
-  }, [todayLog?.log_date]);
+    setSleepHours(activeLog?.sleep_hours ?? 7);
+    setSleepQuality(activeLog?.sleep_quality ?? 3);
+    setActivityLevel((activeLog?.metadata?.activity_level as number) ?? 50);
+    setPerformanceNote(activeLog?.notes ?? "");
+  }, [activeDate, activeLog?.id]);
 
   const autosave = useCallback(
     (overrides?: {
@@ -154,17 +152,16 @@ export function HealthSection() {
         ...(overrides?.metadata ?? {}),
       };
       log({
-        log_date: todayStr,
-        // Preserve existing mood/energy from today's log so we don't null them out
-        mood: todayLog?.mood ?? null,
-        energy: todayLog?.energy ?? null,
+        // Preserve existing mood/energy from the active log so we don't null them out
+        mood: activeLog?.mood ?? null,
+        energy: activeLog?.energy ?? null,
         sleep_hours: overrides?.sleep_hours ?? sleepHours,
         sleep_quality: overrides?.sleep_quality ?? sleepQuality,
         notes: overrides?.notes ?? performanceNote,
         metadata: mergedMetadata,
       });
     },
-    [sleepHours, sleepQuality, activityLevel, performanceNote, todayStr, todayLog?.mood, todayLog?.energy]
+    [sleepHours, sleepQuality, activityLevel, performanceNote, log, activeLog?.mood, activeLog?.energy]
   );
 
   return (
@@ -179,7 +176,7 @@ export function HealthSection() {
         style={{ boxShadow: "0 2px 12px rgba(60,40,10,0.04)" }}
       >
         <p className="font-data text-[11px] text-ink-3 uppercase tracking-wider mb-6">
-          Today — {todayStr}
+          {activeDate}
         </p>
 
         <div className="space-y-6">
