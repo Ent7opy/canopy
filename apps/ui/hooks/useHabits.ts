@@ -1,10 +1,10 @@
 'use client';
 import { useEffect } from 'react';
 import { useDashboardStore } from '@/store/dashboardStore';
-import { getTodayHabits, logHabit, unlogHabit, createHabit, type ApiHabit } from '@/lib/api';
+import { getTodayHabits, logHabit, unlogHabit, createHabit, deleteHabit, type ApiHabit } from '@/lib/api';
 
 export function useHabits() {
-  const { habits, setHabits, setHabitDone } = useDashboardStore();
+  const { habits, setHabits, setHabitDone, removeHabit } = useDashboardStore();
 
   useEffect(() => {
     getTodayHabits().then((data) => {
@@ -29,5 +29,10 @@ export function useHabits() {
     if (created) setHabits([...habits, { ...created, done: false }]);
   }
 
-  return { habits, complete, uncomplete, add };
+  function remove(id: string) {
+    removeHabit(id);
+    deleteHabit(id);
+  }
+
+  return { habits, complete, uncomplete, add, remove };
 }

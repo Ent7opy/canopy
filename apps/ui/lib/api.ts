@@ -244,6 +244,9 @@ export async function createHabit(data: { name: string; frequency?: string; icon
 export async function patchHabit(id: string, data: Partial<ApiHabit>): Promise<ApiHabit | null> {
   return apiFetch<ApiHabit>(`/api/v1/habits/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
 }
+export async function deleteHabit(id: string): Promise<void> {
+  await apiFetch(`/api/v1/habits/${id}`, { method: 'DELETE' });
+}
 export async function logHabit(id: string, log_date: string, count = 1): Promise<ApiHabitLog | null> {
   return apiFetch<ApiHabitLog>(`/api/v1/habits/${id}/logs`, { method: 'POST', body: JSON.stringify({ log_date, count }) });
 }
@@ -357,6 +360,9 @@ export async function createHobby(data: Partial<ApiHobby> & { name: string }): P
 }
 export async function patchHobby(id: string, data: Partial<ApiHobby>): Promise<ApiHobby | null> {
   return apiFetch<ApiHobby>(`/api/v1/hobbies/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+}
+export async function deleteHobby(id: string): Promise<void> {
+  await apiFetch(`/api/v1/hobbies/${id}`, { method: 'DELETE' });
 }
 export async function logHobbySession(hobbyId: string, data: { log_date: string; duration_min?: number; notes?: string; rating?: number }): Promise<void> {
   await apiFetch(`/api/v1/hobbies/${hobbyId}/logs`, { method: 'POST', body: JSON.stringify(data) });

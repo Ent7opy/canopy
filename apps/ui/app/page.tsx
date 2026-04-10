@@ -8,7 +8,6 @@ import { JournalSection }     from "@/components/sections/JournalSection";
 import { HealthSection }      from "@/components/sections/HealthSection";
 import { GoalsSection }       from "@/components/sections/GoalsSection";
 import { ProjectsSection }    from "@/components/sections/ProjectsSection";
-import { SkillsSection }      from "@/components/sections/SkillsSection";
 import { LearningSection }    from "@/components/sections/LearningSection";
 import { HobbiesSection }     from "@/components/sections/HobbiesSection";
 import { ResourcesSection }   from "@/components/sections/ResourcesSection";
@@ -30,7 +29,6 @@ export default function Home() {
         <HealthSection />
         <GoalsSection />
         <ProjectsSection />
-        <SkillsSection />
         <LearningSection />
         <HobbiesSection />
         <ResourcesSection />

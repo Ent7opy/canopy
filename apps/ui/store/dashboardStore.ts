@@ -26,6 +26,7 @@ interface DashboardState {
   habits: ApiHabit[];
   setHabits: (habits: ApiHabit[]) => void;
   setHabitDone: (id: string, done: boolean) => void;
+  removeHabit: (id: string) => void;
 
   // ── Goals ─────────────────────────────────────────────────────────────────
   apiGoals: ApiGoal[];
@@ -95,6 +96,7 @@ export const useDashboardStore = create<DashboardState>()(
       setHabits: (habits) => set({ habits }),
       setHabitDone: (id, done) =>
         set((s) => ({ habits: s.habits.map((h) => h.id === id ? { ...h, done } : h) })),
+      removeHabit: (id) => set((s) => ({ habits: s.habits.filter((h) => h.id !== id) })),
 
       // Goals
       apiGoals: [],

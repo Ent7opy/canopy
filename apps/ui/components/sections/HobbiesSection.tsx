@@ -18,7 +18,11 @@ const STATUS_LABELS: Record<StatusFilter, string> = {
 };
 
 export function HobbiesSection() {
-  const { hobbies, add, update, logSession } = useHobbies();
+  const { hobbies, add, update, remove, logSession } = useHobbies();
+
+  const handleDelete = (id: string) => {
+    if (confirm("Delete this hobby?")) remove(id);
+  };
   const [filter, setFilter] = useState<StatusFilter>("active");
   const [loggingId, setLoggingId] = useState<string | null>(null);
   const [duration, setDuration] = useState("");
@@ -156,6 +160,14 @@ export function HobbiesSection() {
                         title="Edit"
                       >
                         <Pencil size={13} strokeWidth={1.8} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(hobby.id); }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-1"
+                        aria-label="Delete hobby"
+                        title="Delete"
+                      >
+                        <X size={13} strokeWidth={2} />
                       </button>
                       <Button
                         variant="ghost"

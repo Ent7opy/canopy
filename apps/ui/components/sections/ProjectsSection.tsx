@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Settings2, Plus } from "lucide-react";
+import { Settings2, Plus, X } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import OakDivider from "@/components/OakDivider";
 
 const statusDot: Record<string, string> = {
   active:    "#c07d2e",
@@ -16,7 +17,11 @@ const statusDot: Record<string, string> = {
 };
 
 export function ProjectsSection() {
-  const { projects, add } = useProjects();
+  const { projects, add, remove } = useProjects();
+
+  const handleDelete = (id: string) => {
+    if (confirm("Delete this project?")) remove(id);
+  };
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
@@ -62,9 +67,17 @@ export function ProjectsSection() {
                   className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ backgroundColor: statusDot[proj.status] ?? "#c8b99a" }}
                 />
-                <h4 className="text-[17px] font-bold text-ink font-display group-hover:text-forest transition-colors">
+                <h4 className="text-[17px] font-bold text-ink font-display group-hover:text-forest transition-colors flex-1">
                   {proj.name}
                 </h4>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(proj.id); }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 text-ink-3 hover:text-amber-sol p-0.5"
+                  aria-label="Delete project"
+                  title="Delete"
+                >
+                  <X size={13} strokeWidth={2} />
+                </button>
               </div>
 
               {proj.type && (
@@ -155,16 +168,7 @@ export function ProjectsSection() {
         </div>
       )}
 
-      {/* Moss cluster divider */}
-      <div className="flex justify-center py-12 opacity-35 select-none pointer-events-none">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-          <path
-            d="M30 10 Q 50 10 50 30 Q 50 50 30 50 Q 10 50 10 30 Q 10 10 30 10"
-            fill="none" stroke="#7a6040" strokeWidth="1" strokeDasharray="2 2.5"
-          />
-          <path d="M22 30 L 38 30 M30 22 L 30 38" stroke="#7a6040" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </div>
+      <OakDivider />
     </section>
   );
 }
