@@ -33,7 +33,7 @@ const groups: NavGroup[] = [
     label: "The Stream",
     route: "/stream",
     items: [
-      { id: "inbox",   label: "Mind Log" },
+      { id: "mindlog", label: "Mind Log" },
       { id: "habits",  label: "Habits"   },
       { id: "journal", label: "Journal"  },
       { id: "health",  label: "Health"   },
@@ -67,6 +67,38 @@ export default function Sidebar() {
   const withQuery = (href: string) => (qs ? `${href}?${qs}` : href);
   const withHash = (route: string, id: string) =>
     `${route}${qs ? `?${qs}` : ""}#${id}`;
+
+  // Same-route hash navigation handler. Next.js <Link> has a quirk where
+  // clicking a hash link when you're already on the target route can stack
+  // fragments onto the URL (e.g. `/stream#health` + clicking `/stream#mindlog`
+  // yields `/stream#health#mindlog` instead of replacing). We intercept the
+  // click, do the scroll ourselves, and canonicalise the URL via
+  // `history.replaceState` — which is all a hash change actually needs.
+  //
+  // Cross-route clicks (and modified clicks like cmd-click / middle-click)
+  // still fall through to the default <Link> behaviour.
+  const navigate = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+    targetRoute: string
+  ) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (targetRoute !== pathname) return;
+
+    e.preventDefault();
+
+    const hashIdx = href.indexOf("#");
+    const id = hashIdx >= 0 ? href.slice(hashIdx + 1) : null;
+    if (id) {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Replace the URL bar directly — no router navigation, no re-render.
+    // Preserves whatever router state we currently have.
+    window.history.replaceState(window.history.state, "", href);
+  };
 
   // Figure out which group the current route belongs to so we can both
   // highlight the group label and scope the IntersectionObserver to only
@@ -134,6 +166,7 @@ export default function Sidebar() {
   }, [currentSections]);
 
   const isReviewRoute = pathname === REVIEW_ROUTE;
+  const reviewHref = withQuery(REVIEW_ROUTE);
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-[200px] border-r border-[#c8b99a] bg-[#f7f3e9] flex flex-col p-8 z-40 overflow-y-auto">
@@ -151,10 +184,12 @@ export default function Sidebar() {
       <nav className="flex flex-col gap-6 flex-1 min-h-0">
         {groups.map((group) => {
           const isActiveGroup = pathname === group.route;
+          const groupHref = withQuery(group.route);
           return (
             <div key={group.label} className="flex flex-col gap-2">
               <Link
-                href={withQuery(group.route)}
+                href={groupHref}
+                onClick={(e) => navigate(e, groupHref, group.route)}
                 className={`font-data text-[9px] uppercase tracking-[0.12em] mb-1 transition-colors ${
                   isActiveGroup
                     ? "text-[#3d6b4f]"
@@ -169,10 +204,12 @@ export default function Sidebar() {
                   // IntersectionObserver has placed it in view. Otherwise the
                   // link stays muted — including when we're on another route.
                   const isActive = isActiveGroup && activeSection === id;
+                  const itemHref = withHash(group.route, id);
                   return (
                     <Link
                       key={id}
-                      href={withHash(group.route, id)}
+                      href={itemHref}
+                      onClick={(e) => navigate(e, itemHref, group.route)}
                       className={`flex items-center gap-2.5 text-[14px] font-reading text-left transition-colors duration-200 ${
                         isActive
                           ? "text-[#3d6b4f] font-semibold"
@@ -201,7 +238,8 @@ export default function Sidebar() {
           mental model. */}
       <div className="mt-4 pt-4 border-t border-[#e2d8c2] flex-shrink-0">
         <Link
-          href={withQuery(REVIEW_ROUTE)}
+          href={reviewHref}
+          onClick={(e) => navigate(e, reviewHref, REVIEW_ROUTE)}
           className={`flex items-center gap-2.5 text-[14px] font-reading text-left transition-colors duration-200 ${
             isReviewRoute
               ? "text-[#3d6b4f] font-semibold"

@@ -42,7 +42,7 @@ export function InboxSection() {
   };
 
   return (
-    <section id="inbox" className="mb-16 scroll-mt-20">
+    <section id="mindlog" className="mb-16 scroll-mt-20">
       <div className="flex items-center gap-3 mb-8">
         <Inbox className="text-forest flex-shrink-0" size={20} strokeWidth={1.8} />
         <h3 className="text-[22px] font-semibold text-ink font-display">Mind Log</h3>
