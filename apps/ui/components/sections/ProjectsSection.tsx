@@ -6,6 +6,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import OakDivider from "@/components/OakDivider";
 
 const statusDot: Record<string, string> = {
   active:    "#c07d2e",
@@ -167,16 +168,7 @@ export function ProjectsSection() {
         </div>
       )}
 
-      {/* Moss cluster divider */}
-      <div className="flex justify-center py-12 opacity-35 select-none pointer-events-none">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-          <path
-            d="M30 10 Q 50 10 50 30 Q 50 50 30 50 Q 10 50 10 30 Q 10 10 30 10"
-            fill="none" stroke="#7a6040" strokeWidth="1" strokeDasharray="2 2.5"
-          />
-          <path d="M22 30 L 38 30 M30 22 L 30 38" stroke="#7a6040" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </div>
+      <OakDivider />
     </section>
   );
 }

@@ -10,7 +10,6 @@ const sections = [
   { id: "health",  label: "Health"        },
   { id: "goals",   label: "Goals"         },
   { id: "projects",label: "Projects"      },
-  { id: "skills",  label: "Skills"        },
   { id: "learning",label: "Learning"      },
   { id: "hobbies", label: "Hobbies"       },
   { id: "reading", label: "Reading"       },

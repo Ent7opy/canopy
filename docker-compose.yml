@@ -18,7 +18,7 @@ services:
   api:
     image: node:20-alpine
     working_dir: /app
-    command: sh -c "npm install --workspace=apps/api --workspace=packages/types && npm run dev:api"
+    command: sh -c "npm install --workspace=apps/api --workspace=packages/types && node apps/api/scripts/migrate.js && npm run dev:api"
     ports:
       - "3001:3001"
     volumes:

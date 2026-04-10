@@ -130,7 +130,7 @@ export function HealthSection() {
     (todayLog?.metadata?.activity_level as number) ?? 50
   );
   const [performanceNote, setPerformanceNote] = useState<string>(
-    (todayLog?.metadata?.performance_note as string) ?? ""
+    todayLog?.notes ?? ""
   );
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export function HealthSection() {
       setSleepHours(todayLog.sleep_hours ?? 7);
       setSleepQuality(todayLog.sleep_quality ?? 3);
       setActivityLevel((todayLog.metadata?.activity_level as number) ?? 50);
-      setPerformanceNote((todayLog.metadata?.performance_note as string) ?? "");
+      setPerformanceNote(todayLog.notes ?? "");
     }
   }, [todayLog?.log_date]);
 
@@ -146,11 +146,11 @@ export function HealthSection() {
     (overrides?: {
       sleep_hours?: number;
       sleep_quality?: number;
+      notes?: string;
       metadata?: Record<string, unknown>;
     }) => {
       const mergedMetadata = {
         activity_level: activityLevel,
-        performance_note: performanceNote,
         ...(overrides?.metadata ?? {}),
       };
       log({
@@ -160,6 +160,7 @@ export function HealthSection() {
         energy: todayLog?.energy ?? null,
         sleep_hours: overrides?.sleep_hours ?? sleepHours,
         sleep_quality: overrides?.sleep_quality ?? sleepQuality,
+        notes: overrides?.notes ?? performanceNote,
         metadata: mergedMetadata,
       });
     },
@@ -201,21 +202,21 @@ export function HealthSection() {
             step={5}
             onChange={(v) => {
               setActivityLevel(v);
-              autosave({ metadata: { activity_level: v, performance_note: performanceNote } });
+              autosave({ metadata: { activity_level: v } });
             }}
             unit="%"
           />
           <div>
-            <label className="font-reading text-[13px] text-ink-2 block mb-2">Performance note</label>
+            <label className="font-reading text-[13px] text-ink-2 block mb-2">Wellbeing note</label>
             <textarea
               rows={2}
               value={performanceNote}
               onChange={(e) => setPerformanceNote(e.target.value)}
               onBlur={() =>
-                autosave({ metadata: { activity_level: activityLevel, performance_note: performanceNote } })
+                autosave({ notes: performanceNote })
               }
               className="w-full bg-transparent font-reading text-[14px] text-ink border-b border-bark focus:border-forest focus:outline-none py-1.5 resize-none placeholder:text-ink-3"
-              placeholder="How did you perform today?"
+              placeholder="How did you feel today?"
             />
           </div>
         </div>
