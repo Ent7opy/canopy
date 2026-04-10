@@ -19,6 +19,63 @@ router.get('/logs/today', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// GET /logs/range?from=YYYY-MM-DD&to=YYYY-MM-DD — each active habit + the set
+// of dates it was logged within the range. Powers the weekly habit-rhythm grid.
+//
+// NOTE: must sit *before* `/logs/:date` so Express doesn't greedily match
+// "range" as the :date param.
+router.get('/logs/range', async (req, res, next) => {
+  const { from, to } = req.query;
+  const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+  if (typeof from !== 'string' || typeof to !== 'string' || !isoDate.test(from) || !isoDate.test(to)) {
+    return res.status(400).json({ error: 'Invalid date range. Use from=YYYY-MM-DD&to=YYYY-MM-DD.' });
+  }
+  if (from > to) {
+    return res.status(400).json({ error: 'from must be on or before to' });
+  }
+  try {
+    // One row per habit. `log_dates` is an array of ISO strings for the days
+    // the habit was completed inside the range. Empty array when none.
+    const { rows } = await pool.query(
+      `SELECT
+         h.id, h.name, h.icon, h.color, h.frequency, h.target_count,
+         COALESCE(
+           ARRAY_AGG(TO_CHAR(hl.log_date, 'YYYY-MM-DD') ORDER BY hl.log_date)
+             FILTER (WHERE hl.log_date IS NOT NULL),
+           '{}'
+         ) AS log_dates
+       FROM habits h
+       LEFT JOIN habit_logs hl
+              ON hl.habit_id = h.id
+             AND hl.log_date BETWEEN $2 AND $3
+       WHERE h.user_id = $1 AND h.active = TRUE AND h.archived_at IS NULL
+       GROUP BY h.id
+       ORDER BY h.name`,
+      [req.user.id, from, to]
+    );
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+// GET /logs/:date — habits with done boolean for a specific date (YYYY-MM-DD)
+router.get('/logs/:date', async (req, res, next) => {
+  const { date } = req.params;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD.' });
+  }
+  try {
+    const { rows } = await pool.query(
+      `SELECT h.*, CASE WHEN hl.id IS NOT NULL THEN TRUE ELSE FALSE END AS done
+       FROM habits h
+       LEFT JOIN habit_logs hl ON hl.habit_id = h.id AND hl.log_date = $2
+       WHERE h.user_id = $1 AND h.active = TRUE AND h.archived_at IS NULL
+       ORDER BY h.name`,
+      [req.user.id, date]
+    );
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
 // GET / — list active habits
 router.get('/', async (req, res, next) => {
   try {

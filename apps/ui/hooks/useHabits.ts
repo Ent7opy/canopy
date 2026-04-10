@@ -1,27 +1,28 @@
 'use client';
 import { useEffect } from 'react';
 import { useDashboardStore } from '@/store/dashboardStore';
-import { getTodayHabits, logHabit, unlogHabit, createHabit, deleteHabit, type ApiHabit } from '@/lib/api';
+import { getHabitsForDate, logHabit, unlogHabit, createHabit, deleteHabit } from '@/lib/api';
+import { useActiveDate } from '@/hooks/useActiveDate';
 
 export function useHabits() {
   const { habits, setHabits, setHabitDone, removeHabit } = useDashboardStore();
+  const { date } = useActiveDate();
 
+  // Refetch habits with done-state keyed to the currently selected date.
   useEffect(() => {
-    getTodayHabits().then((data) => {
+    getHabitsForDate(date).then((data) => {
       if (data) setHabits(data);
     });
-  }, []);
+  }, [date]);
 
   function complete(id: string) {
     setHabitDone(id, true);
-    const today = new Date().toISOString().split('T')[0];
-    logHabit(id, today);
+    logHabit(id, date);
   }
 
   function uncomplete(id: string) {
     setHabitDone(id, false);
-    const today = new Date().toISOString().split('T')[0];
-    unlogHabit(id, today);
+    unlogHabit(id, date);
   }
 
   async function add(name: string, frequency = 'daily') {

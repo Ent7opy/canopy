@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Check, Plus, Sprout, Undo2, X } from "lucide-react";
 import { useHabits } from "@/hooks/useHabits";
+import { useActiveDate } from "@/hooks/useActiveDate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ const UNDO_WINDOW_MS = 5000;
 
 export function HabitsSection() {
   const { habits, complete, uncomplete, add, remove } = useHabits();
+  const { isToday } = useActiveDate();
 
   const handleDelete = (id: string) => {
     if (confirm("Delete this habit?")) remove(id);
@@ -74,7 +76,7 @@ export function HabitsSection() {
         <h3 className="text-[22px] font-semibold text-ink font-display">Habits</h3>
         {doneCount > 0 && (
           <span className="ml-auto font-data text-[12px] text-forest flex items-center gap-1">
-            <span>🌿</span> {doneCount} done today
+            <span>🌿</span> {doneCount} done {isToday ? "today" : "on this day"}
           </span>
         )}
       </div>

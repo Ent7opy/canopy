@@ -238,6 +238,25 @@ export async function getHabits(): Promise<ApiHabit[] | null> {
 export async function getTodayHabits(): Promise<ApiHabit[] | null> {
   return apiFetch<ApiHabit[]>('/api/v1/habits/logs/today');
 }
+export async function getHabitsForDate(date: string): Promise<ApiHabit[] | null> {
+  return apiFetch<ApiHabit[]>(`/api/v1/habits/logs/${date}`);
+}
+
+// Row shape returned by GET /habits/logs/range — one row per active habit,
+// with `log_dates` holding the ISO dates the habit was completed inside the
+// requested range. Powers the weekly habit-rhythm grid without N round-trips.
+export interface WeeklyHabitRow {
+  id: string;
+  name: string;
+  icon: string | null;
+  color: string | null;
+  frequency: string;
+  target_count: number;
+  log_dates: string[];
+}
+export async function getHabitsLogsRange(from: string, to: string): Promise<WeeklyHabitRow[] | null> {
+  return apiFetch<WeeklyHabitRow[]>(`/api/v1/habits/logs/range?from=${from}&to=${to}`);
+}
 export async function createHabit(data: { name: string; frequency?: string; icon?: string; color?: string }): Promise<ApiHabit | null> {
   return apiFetch<ApiHabit>('/api/v1/habits', { method: 'POST', body: JSON.stringify(data) });
 }
@@ -308,8 +327,14 @@ export async function deleteNote(id: string): Promise<void> {
 export async function getInbox(): Promise<ApiInboxItem[] | null> {
   return apiFetch<ApiInboxItem[]>('/api/v1/inbox');
 }
-export async function createInboxItem(content: string): Promise<ApiInboxItem | null> {
-  return apiFetch<ApiInboxItem>('/api/v1/inbox', { method: 'POST', body: JSON.stringify({ content }) });
+export async function createInboxItem(
+  content: string,
+  metadata?: Record<string, unknown>
+): Promise<ApiInboxItem | null> {
+  return apiFetch<ApiInboxItem>('/api/v1/inbox', {
+    method: 'POST',
+    body: JSON.stringify(metadata ? { content, metadata } : { content }),
+  });
 }
 export async function processInboxItem(id: string, routed_to?: string, routed_id?: string): Promise<void> {
   await apiFetch(`/api/v1/inbox/${id}/process`, { method: 'POST', body: JSON.stringify({ routed_to, routed_id }) });

@@ -9,7 +9,7 @@ import FernDivider from "@/components/FernDivider";
 const PAGE_SIZE = 5;
 
 export function InboxSection() {
-  const { items, capture, process } = useInbox();
+  const { items, capture, process, isToday, activeDate } = useInbox();
   const [draft, setDraft] = useState("");
   const [page, setPage] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +42,7 @@ export function InboxSection() {
   };
 
   return (
-    <section id="inbox" className="mb-16 scroll-mt-20">
+    <section id="mindlog" className="mb-16 scroll-mt-20">
       <div className="flex items-center gap-3 mb-8">
         <Inbox className="text-forest flex-shrink-0" size={20} strokeWidth={1.8} />
         <h3 className="text-[22px] font-semibold text-ink font-display">Mind Log</h3>
@@ -79,6 +79,11 @@ export function InboxSection() {
         </div>
         <p className="font-data text-[10px] text-ink-3 mt-2">
           Press <kbd className="bg-surface-2 border border-bark px-1 rounded text-[10px]">Enter</kbd> to save quickly
+          {!isToday && (
+            <span className="ml-2 italic text-amber-sol">
+              · tagged for {activeDate}
+            </span>
+          )}
         </p>
       </div>
 

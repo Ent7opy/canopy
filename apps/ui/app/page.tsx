@@ -1,18 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { InboxSection }       from "@/components/sections/InboxSection";
-import { NowSection }         from "@/components/sections/NowSection";
-import { HabitsSection }      from "@/components/sections/HabitsSection";
-import { JournalSection }     from "@/components/sections/JournalSection";
-import { HealthSection }      from "@/components/sections/HealthSection";
-import { GoalsSection }       from "@/components/sections/GoalsSection";
-import { ProjectsSection }    from "@/components/sections/ProjectsSection";
-import { LearningSection }    from "@/components/sections/LearningSection";
-import { HobbiesSection }     from "@/components/sections/HobbiesSection";
-import { ResourcesSection }   from "@/components/sections/ResourcesSection";
-import { WeeklyReviewSection } from "@/components/sections/WeeklyReviewSection";
+import { NowSection }     from "@/components/sections/NowSection";
+import { HistorySection } from "@/components/sections/HistorySection";
 
+/**
+ * Root dashboard — the Timeline group.
+ *
+ * Intentionally thin: just "Now" (today's snapshot) and "History" (past
+ * entries). The date-scoped detail lives on /stream and the status-scoped
+ * content lives on /garden.
+ */
 export default function Home() {
   // Guard against Zustand persist / localStorage hydration mismatches on SSR.
   const [mounted, setMounted] = useState(false);
@@ -23,16 +21,7 @@ export default function Home() {
     <div className="min-h-screen flex justify-center py-20">
       <div className="w-full max-w-[780px] px-8">
         <NowSection />
-        <InboxSection />
-        <HabitsSection />
-        <JournalSection />
-        <HealthSection />
-        <GoalsSection />
-        <ProjectsSection />
-        <LearningSection />
-        <HobbiesSection />
-        <ResourcesSection />
-        <WeeklyReviewSection />
+        <HistorySection />
       </div>
     </div>
   );

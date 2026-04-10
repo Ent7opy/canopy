@@ -43,37 +43,33 @@ function SliderField({
 }
 
 export function JournalSection() {
-  const { entries, todayEntry, save } = useJournal();
-  const todayStr = new Date().toISOString().split("T")[0];
+  const { entries, activeEntry, activeDate, save } = useJournal();
 
-  const [body, setBody] = useState(todayEntry?.body ?? "");
-  const [mood, setMood] = useState(todayEntry?.mood ?? 5);
-  const [energy, setEnergy] = useState(todayEntry?.energy ?? 5);
+  const [body, setBody] = useState(activeEntry?.body ?? "");
+  const [mood, setMood] = useState(activeEntry?.mood ?? 5);
+  const [energy, setEnergy] = useState(activeEntry?.energy ?? 5);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // Sync form from loaded today entry
+  // Re-sync form whenever the active date changes (or a new entry loads for it).
   useEffect(() => {
-    if (todayEntry) {
-      setBody(todayEntry.body ?? "");
-      setMood(todayEntry.mood ?? 5);
-      setEnergy(todayEntry.energy ?? 5);
-    }
-  }, [todayEntry?.id]);
+    setBody(activeEntry?.body ?? "");
+    setMood(activeEntry?.mood ?? 5);
+    setEnergy(activeEntry?.energy ?? 5);
+  }, [activeDate, activeEntry?.id]);
 
   const autosave = useCallback(
     (overrides?: { body?: string; mood?: number; energy?: number }) => {
       save({
-        entry_date: todayStr,
         body: overrides?.body ?? body,
         mood: overrides?.mood ?? mood,
         energy: overrides?.energy ?? energy,
       });
     },
-    [body, mood, energy, todayStr]
+    [body, mood, energy, save]
   );
 
   const pastEntries = [...entries]
-    .filter((e) => e.entry_date !== todayStr)
+    .filter((e) => e.entry_date !== activeDate)
     .sort((a, b) => b.entry_date.localeCompare(a.entry_date))
     .slice(0, 3);
 
@@ -90,7 +86,7 @@ export function JournalSection() {
         style={{ boxShadow: "0 2px 12px rgba(60,40,10,0.04)" }}
       >
         <p className="font-data text-[11px] text-ink-3 uppercase tracking-wider mb-5">
-          {formatDate(todayStr)}
+          {formatDate(activeDate)}
         </p>
 
         <div className="mb-6">

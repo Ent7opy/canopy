@@ -33,10 +33,15 @@ export interface ApiResource {
   title: string;
   author: string | null;
   url: string | null;
+  cover_url: string | null;
   status: 'backlog' | 'active' | 'completed' | 'abandoned' | 'reference';
   rating: number | null;
+  review: string | null;
   progress_current: number | null;
   progress_total: number | null;
+  started_at: string | null;
+  completed_at: string | null;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ApiGoal {
